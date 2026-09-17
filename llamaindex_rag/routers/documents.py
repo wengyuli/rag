@@ -3,6 +3,7 @@
 Document management originally by Guo Lijian; extended for local media ingestion.
 """
 import os
+from datetime import timezone
 import shutil
 import uuid
 from pathlib import Path
@@ -41,6 +42,7 @@ def serialize_asset(doc, workspace_name=None):
         "stage": doc.processing_stage, "error": doc.processing_error,
         "media_type": doc.media_type, "metadata": doc.media_metadata or {},
         "date": doc.upload_date.strftime("%Y-%m-%d") if doc.upload_date else "",
+        "uploaded_at": (doc.upload_date if doc.upload_date.tzinfo else doc.upload_date.replace(tzinfo=timezone.utc)).isoformat() if doc.upload_date else None,
         "isGlobal": doc.is_global, "uploader_id": doc.uploader_id,
         "uploader_name": doc.uploader.username if doc.uploader else "Unknown",
         "workspace_id": doc.workspace_id,

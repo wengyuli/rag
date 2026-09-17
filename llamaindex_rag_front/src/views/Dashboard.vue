@@ -28,9 +28,12 @@ import KnowledgeBase from '../components/KnowledgeBase.vue'
 import SettingsView from '../components/SettingsView.vue'
 import DepartmentView from './DepartmentView.vue'
 import UserManageView from './UserManageView.vue'
+import ResourceMetrics from './ResourceMetrics.vue'
+import { useAuth } from '../composables/useAuth'
 import DashboardHome from './DashboardHome.vue' 
 
 // 默认进入 'home'
+const { user } = useAuth()
 const activeTab = ref(localStorage.getItem('activeTab') || 'home')
 
 watch(activeTab, (newTab) => {
@@ -42,6 +45,7 @@ const currentView = computed(() => {
     case 'home': return DashboardHome
     case 'chat': return ChatView
     case 'knowledge': return KnowledgeBase
+    case 'resources': return user.value.role === 'admin' ? ResourceMetrics : DashboardHome
     case 'settings': return SettingsView
     case 'departments': return DepartmentView
     case 'users': return UserManageView

@@ -3,7 +3,7 @@
     <!-- Logo -->
     <div class="p-4 border-b border-slate-800 flex items-center gap-2 font-bold text-white text-lg">
       <Bot class="w-6 h-6 text-blue-500" />
-      <span>星河内容资产库</span>
+      <span>企业数字资产库</span>
     </div>
 
     <!-- 部门信息 -->
@@ -138,7 +138,7 @@ import { computed, ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { 
   Bot, MessageSquare, Database, Building2, LogOut, Users, Key, Trash2,
-  LayoutDashboard 
+  LayoutDashboard, Activity
  } from 'lucide-vue-next'
 import { useWorkspace } from '../composables/useWorkspace'
 import { useAuth } from '../composables/useAuth'
@@ -154,8 +154,9 @@ const { sessionList, fetchSessions, loadSession, createNewSession, deleteSession
 
 const allTabs = [
   { id: 'home', label: '系统概览', icon: LayoutDashboard, roles: ['admin', 'member'] },
-  { id: 'chat', label: '智能问答', icon: MessageSquare, roles: ['admin', 'member'] },
+  { id: 'chat', label: 'AI问答', icon: MessageSquare, roles: ['admin', 'member'] },
   { id: 'knowledge', label: '资料库', icon: Database, roles: ['admin', 'member'] },
+  { id: 'resources', label: '资源监控', icon: Activity, roles: ['admin'] },
   { id: 'departments', label: '部门管理', icon: Building2, roles: ['admin'] },
   { id: 'users', label: '人员管理', icon: Users, roles: ['admin'] },
 ]

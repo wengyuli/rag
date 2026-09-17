@@ -29,7 +29,7 @@
               <MessageSquare class="w-8 h-8" />
             </div>
             <div>
-              <div class="text-sm text-slate-500">累计智能问答</div>
+              <div class="text-sm text-slate-500">累计AI问答</div>
               <div class="text-2xl font-bold text-slate-800">{{ stats.metrics.total_chats }} <span class="text-xs font-normal text-slate-400">次</span></div>
             </div>
           </div>

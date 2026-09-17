@@ -252,7 +252,7 @@ def create(output: Path, font_path: Path, company: str, narration: Path | None):
         raise RuntimeError("Unexpected video/audio tracks")
     manifest = {
         "company": company,
-        "library_name": "星河内容资产库" if company == "星河内容工作室" else company + "内容资产库",
+        "library_name": "企业数字资产库" if company == "星河内容工作室" else company + "内容资产库",
         "purpose": "虚构的自媒体企业内部资料，用于演示文档、图片和视频管理及问答",
         "files": names,
         "assets": [

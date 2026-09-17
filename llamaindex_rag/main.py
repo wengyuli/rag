@@ -9,9 +9,10 @@ from rag_engine import init_settings, get_reranker
 from database import engine, Base
 from migrations import migrate_media_schema
 from ingestion import start_worker, stop_worker
+from system_metrics import start_metrics, stop_metrics
 
 # 引入路由模块
-from routers import auth, chat, files, admin, dashboard, documents
+from routers import auth, chat, files, admin, dashboard, documents, system
 
 # 加载环境变量
 load_dotenv()
@@ -34,13 +35,15 @@ async def lifespan(app: FastAPI):
     get_reranker()  # 预加载模型
 
     start_worker()
+    start_metrics()
     try:
         yield
     finally:
+        stop_metrics()
         stop_worker()
 
 
-app = FastAPI(title="星河内容资产库", lifespan=lifespan)
+app = FastAPI(title="企业数字资产库", lifespan=lifespan)
 
 # CORS 配置
 app.add_middleware(
@@ -57,6 +60,7 @@ app.include_router(files.router)
 app.include_router(admin.router)
 app.include_router(documents.router)
 app.include_router(dashboard.router)
+app.include_router(system.router)
 
 if __name__ == "__main__":
     import uvicorn

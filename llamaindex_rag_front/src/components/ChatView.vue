@@ -1,5 +1,5 @@
 <!--
-  智能问答聊天组件
+  AI问答聊天组件
 
   提供与AI助手的实时对话界面，支持流式文本显示
   包含消息历史、文件引用展示、打字机效果等功能
@@ -75,7 +75,7 @@
 
     <div class="p-4 bg-white border-t shrink-0">
       <div class="max-w-4xl mx-auto relative">
-        <input v-model="input" @keydown.enter="handleSend" type="text" placeholder="例如：封面怎么选？拍摄前准备什么？发布流程是什么？" aria-label="向星河内容资产库助手提问"
+        <input v-model="input" @keydown.enter="handleSend" type="text" placeholder="例如：封面怎么选？拍摄前准备什么？发布流程是什么？" aria-label="向企业数字资产库助手提问"
           class="w-full p-4 pr-12 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm select-text"
           :disabled="isLoading" />
         <button @click="handleSend" :disabled="isLoading || !input.trim()" aria-label="发送问题"
