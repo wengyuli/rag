@@ -3,9 +3,11 @@ import core from './messages/core.js'
 import assets from './messages/assets.js'
 import admin from './messages/admin.js'
 import chat from './messages/chat.js'
+import architecture from './messages/architecture.js'
+import diagram from './messages/diagram.js'
 
 export const LOCALE_KEY = 'enterprise_assets_locale'
-const messages = { ...core, ...assets, ...admin, ...chat }
+const messages = { ...core, ...assets, ...admin, ...chat, ...architecture, ...diagram }
 const readLocale = () => {
   try { return localStorage.getItem(LOCALE_KEY) === 'en' ? 'en' : 'zh' }
   catch { return 'zh' }

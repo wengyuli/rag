@@ -29,6 +29,7 @@ import SettingsView from '../components/SettingsView.vue'
 import DepartmentView from './DepartmentView.vue'
 import UserManageView from './UserManageView.vue'
 import ResourceMetrics from './ResourceMetrics.vue'
+import ArchitectureView from './ArchitectureView.vue'
 import { useAuth } from '../composables/useAuth'
 import DashboardHome from './DashboardHome.vue' 
 
@@ -45,6 +46,7 @@ const currentView = computed(() => {
     case 'home': return DashboardHome
     case 'chat': return ChatView
     case 'knowledge': return KnowledgeBase
+    case 'architecture': return ArchitectureView
     case 'resources': return user.value.role === 'admin' ? ResourceMetrics : DashboardHome
     case 'settings': return SettingsView
     case 'departments': return DepartmentView

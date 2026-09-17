@@ -54,7 +54,7 @@ test('keeps switching functional when preference storage is unavailable', async 
 })
 
 test('English dictionaries preserve placeholders and do not contain untranslated Chinese UI copy', async () => {
-  const modules = await Promise.all(['core', 'assets', 'admin', 'chat'].map(name => import(`../src/i18n/messages/${name}.js`)))
+  const modules = await Promise.all(['core', 'assets', 'admin', 'chat', 'architecture', 'diagram'].map(name => import(`../src/i18n/messages/${name}.js`)))
   const placeholders = text => [...text.matchAll(/\{(\w+)\}/g)].map(match => match[1]).sort()
   const seen = new Map()
   for (const { default: messages } of modules) {

@@ -139,7 +139,7 @@ import { computed, ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { 
   Bot, MessageSquare, Database, Building2, LogOut, Users, Key, Trash2,
-  LayoutDashboard, Activity
+  LayoutDashboard, Activity, Workflow
  } from 'lucide-vue-next'
 import LanguageSwitcher from './LanguageSwitcher.vue'
 import { useI18n } from '../i18n'
@@ -160,6 +160,7 @@ const allTabs = [
   { id: 'home', label: '系统概览', icon: LayoutDashboard, roles: ['admin', 'member'] },
   { id: 'chat', label: 'AI 查询', icon: MessageSquare, roles: ['admin', 'member'] },
   { id: 'knowledge', label: '资料库', icon: Database, roles: ['admin', 'member'] },
+  { id: 'architecture', label: '系统架构', icon: Workflow, roles: ['admin', 'member'] },
   { id: 'resources', label: '资源监控', icon: Activity, roles: ['admin'] },
   { id: 'departments', label: '部门管理', icon: Building2, roles: ['admin'] },
   { id: 'users', label: '人员管理', icon: Users, roles: ['admin'] },
