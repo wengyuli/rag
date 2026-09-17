@@ -1,0 +1,27 @@
+# Local secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Runtime data, models, logs, and uploads
+/runtime/
+llamaindex_rag/files/
+llamaindex_rag/models/*
+!llamaindex_rag/models/readme.txt
+*.safetensors
+*.gguf
+*.part
+*.log
+
+# Generated dependencies and test output
+__pycache__/
+*.py[cod]
+.venv/
+node_modules/
+dist/
+.pytest_cache/
+tests/latest-smoke.json
+.DS_Store
+.vscode/

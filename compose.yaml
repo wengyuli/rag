@@ -1,0 +1,75 @@
+name: ${COMPOSE_PROJECT_NAME:-rag}
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: knowledge_base
+      POSTGRES_USER: rag
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Run ./setup.sh to initialize .env}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./llamaindex_rag/init_sql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U rag -d knowledge_base]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  ollama:
+    image: ollama/ollama:0.31.1
+    restart: unless-stopped
+    environment:
+      OLLAMA_HOST: 0.0.0.0:11434
+      OLLAMA_NO_CLOUD: '1'
+      OLLAMA_NUM_PARALLEL: '1'
+      OLLAMA_MAX_LOADED_MODELS: '1'
+      OLLAMA_KEEP_ALIVE: 5m
+    volumes:
+      - ollama_data:/root/.ollama
+  backend:
+    build:
+      context: ./llamaindex_rag
+      dockerfile: ../Dockerfile.backend.local
+    restart: unless-stopped
+    environment:
+      DB_HOST: db
+      DB_PORT: '5432'
+      DB_USER: rag
+      DB_PASSWORD: ${DB_PASSWORD:?Run ./setup.sh to initialize .env}
+      DB_NAME: knowledge_base
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?Run ./setup.sh to initialize .env}
+      OLLAMA_BASE_URL: http://ollama:11434
+      LLM_MODEL_NAME: qwen2.5:3b
+      EMBED_MODEL_NAME: bge-m3
+      EMBEDDING_DIM: '1024'
+      LDAP_SERVER: ldap://127.0.0.1:389
+      HF_HUB_OFFLINE: '1'
+      TRANSFORMERS_OFFLINE: '1'
+      HF_HUB_DISABLE_TELEMETRY: '1'
+      ANONYMIZED_TELEMETRY: 'False'
+      TOKENIZERS_PARALLELISM: 'false'
+      OMP_NUM_THREADS: '4'
+      MKL_NUM_THREADS: '4'
+    volumes:
+      - ./runtime/files:/app/files
+      - ./runtime/models:/app/models:ro
+    ports:
+      - 127.0.0.1:${API_PORT:-8091}:8000
+    depends_on:
+      db:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+  frontend:
+    build:
+      context: ./llamaindex_rag_front
+    restart: unless-stopped
+    ports:
+      - 127.0.0.1:${WEB_PORT:-8090}:80
+    volumes:
+      - ./nginx.local.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend
+volumes:
+  pg_data:
+  ollama_data:

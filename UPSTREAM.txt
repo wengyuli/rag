@@ -1,0 +1,4 @@
+Backend: https://github.com/rogers0602/llamaindex_rag
+Commit: 8836b2f01b1852a8ace09bc9481efbd70364c3d3
+Frontend: https://github.com/rogers0602/llamaindex_rag_front
+Commit: f1e816008129d0fbfe12b0596cfe4860738d0fbc
