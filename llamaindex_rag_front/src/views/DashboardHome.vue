@@ -7,7 +7,7 @@
           <h1 class="text-2xl font-bold text-slate-800">
             欢迎回来，{{ user.username }} 👋
           </h1>
-          <p class="text-slate-500 mt-1">这里是您的企业知识库概览。</p>
+          <p class="text-slate-500 mt-1">星河内容工作室 · 自媒体团队内部资料与素材概览。</p>
         </div>
   
         <!-- 2. 核心指标卡片 -->

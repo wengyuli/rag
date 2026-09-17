@@ -7,17 +7,17 @@
         </div>
       </div>
       
-      <h1 class="text-2xl font-bold text-center text-slate-800 mb-2">企业知识库系统</h1>
-      <p class="text-center text-slate-500 mb-8">Unified Corporate Knowledge Base</p>
+      <h1 class="text-2xl font-bold text-center text-slate-800 mb-2">星河内容资产库</h1>
+      <p class="text-center text-slate-500 mb-8">星河内容工作室</p>
       
       <form @submit.prevent="handleLogin" class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">账号 (LDAP / Local)</label>
+          <label class="block text-sm font-medium text-slate-700 mb-1">账号</label>
           <!-- 改为 text 类型，因为 LDAP 账号可能不是邮箱格式 -->
           <input 
             type="text" 
             v-model="username"
-            placeholder="LDAP用户名或本地用户名，例如：zhangsan"
+            placeholder="请输入团队账号，例如：admin"
             class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
             required
           />
@@ -48,7 +48,7 @@
       </form>
       
       <div class="mt-6 text-center text-xs text-slate-400">
-        已接入企业 AD/LDAP 域认证
+        团队内部资料与素材检索
       </div>
     </div>
   </div>

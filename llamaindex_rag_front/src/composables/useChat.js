@@ -17,7 +17,7 @@ import { useAuth } from './useAuth'
 const messages = ref([
   { 
     role: 'assistant', 
-    content: '你好！我是企业知识库助手，请问有什么可以帮你？', 
+    content: '你好，我是星河内容资产库助手。可以帮你查找选题策划、封面规范、拍摄剪辑要点和发布流程，并定位资料来源。',
     sources: [], thinking: false 
   }
 ])
@@ -94,7 +94,7 @@ export function useChat() {
     localStorage.removeItem('last_session_id')
     messages.value = [{ 
       role: 'assistant', 
-      content: '你好！我是企业知识库助手，请问有什么可以帮你？', 
+      content: '你好，我是星河内容资产库助手。可以帮你查找选题策划、封面规范、拍摄剪辑要点和发布流程，并定位资料来源。',
       sources: [], 
       thinking: false 
     }]

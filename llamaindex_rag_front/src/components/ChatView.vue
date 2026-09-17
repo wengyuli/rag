@@ -14,7 +14,7 @@
       <h2 class="text-lg font-semibold text-slate-800 flex items-center gap-2">
         <MessageSquare class="w-5 h-5 text-blue-600" />
         <!-- 加个 ?. 防止报错 -->
-        {{ currentWorkspace?.name }} 专属助手
+        {{ currentWorkspace?.name }} · 内容助手
       </h2>
     </header>
 
@@ -75,7 +75,7 @@
 
     <div class="p-4 bg-white border-t shrink-0">
       <div class="max-w-4xl mx-auto relative">
-        <input v-model="input" @keydown.enter="handleSend" type="text" placeholder="例如：培训视频里如何关闭设备？操作说明有哪些注意事项？" aria-label="向企业资料助手提问"
+        <input v-model="input" @keydown.enter="handleSend" type="text" placeholder="例如：封面怎么选？拍摄前准备什么？发布流程是什么？" aria-label="向星河内容资产库助手提问"
           class="w-full p-4 pr-12 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm select-text"
           :disabled="isLoading" />
         <button @click="handleSend" :disabled="isLoading || !input.trim()" aria-label="发送问题"

@@ -4,9 +4,9 @@
     <div class="max-w-6xl mx-auto space-y-6">
       <header class="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p class="text-xs font-semibold tracking-widest text-blue-600 mb-2">企业资料 · 本地知识检索</p>
+          <p class="text-xs font-semibold tracking-widest text-blue-600 mb-2">星河内容工作室 · 本地资料检索</p>
           <h2 class="text-2xl font-bold text-slate-800">资料库</h2>
-          <p class="text-sm text-slate-500 mt-2">统一管理文档、图片和培训视频，处理完成后即可在智能问答中引用。</p>
+          <p class="text-sm text-slate-500 mt-2">统一管理选题策划文档、封面图片和拍摄与剪辑视频，处理完成后即可在智能问答中引用。</p>
         </div>
         <button @click="fileInput?.click()" :disabled="isUploading || !canUpload"
           class="inline-flex items-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50">
@@ -51,7 +51,7 @@
       <div v-else-if="!filteredDocs.length" class="bg-white border border-dashed border-slate-300 rounded-xl px-6 py-16 text-center">
         <Database class="w-10 h-10 text-slate-300 mx-auto mb-4" />
         <h3 class="font-semibold text-slate-700">{{ docs.length ? '没有匹配的资料' : '从第一份资料开始' }}</h3>
-        <p class="text-sm text-slate-500 mt-2">{{ docs.length ? '试试其他文件名或资料类型。' : '上传设备说明书、现场图片或操作视频，让团队从资料中找到答案。' }}</p>
+        <p class="text-sm text-slate-500 mt-2">{{ docs.length ? '试试其他文件名或资料类型。' : '上传选题策划、封面图片或拍摄与剪辑视频，让团队从资料中找到答案。' }}</p>
       </div>
       <div v-else class="grid gap-4 lg:grid-cols-2">
         <article v-for="doc in filteredDocs" :key="doc.id" class="bg-white border border-slate-200 rounded-xl p-5 flex flex-col min-w-0">

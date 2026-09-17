@@ -3,7 +3,7 @@
     <!-- Logo -->
     <div class="p-4 border-b border-slate-800 flex items-center gap-2 font-bold text-white text-lg">
       <Bot class="w-6 h-6 text-blue-500" />
-      <span>企业知识库</span>
+      <span>星河内容资产库</span>
     </div>
 
     <!-- 部门信息 -->
