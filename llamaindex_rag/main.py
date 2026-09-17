@@ -7,6 +7,8 @@ from contextlib import asynccontextmanager
 # 引入初始化逻辑
 from rag_engine import init_settings, get_reranker
 from database import engine, Base
+from migrations import migrate_media_schema
+from ingestion import start_worker, stop_worker
 
 # 引入路由模块
 from routers import auth, chat, files, admin, dashboard, documents
@@ -25,15 +27,20 @@ os.environ.pop("HTTPS_PROXY", None)
 async def lifespan(app: FastAPI):
     # 1. 初始化数据库表
     Base.metadata.create_all(bind=engine)
+    migrate_media_schema(engine)
 
     # 2. 初始化 RAG 设置
     init_settings()
     get_reranker()  # 预加载模型
 
-    yield
+    start_worker()
+    try:
+        yield
+    finally:
+        stop_worker()
 
 
-app = FastAPI(title="Enterprise KB", lifespan=lifespan)
+app = FastAPI(title="Enterprise Media KB", lifespan=lifespan)
 
 # CORS 配置
 app.add_middleware(

@@ -58,6 +58,15 @@ class DocumentRecord(Base):
     filename = Column(String)
     file_size = Column(String)
 
+    # Additive media fields; legacy rows retain their original file location.
+    storage_filename = Column(String, nullable=True)
+    media_type = Column(String, nullable=False, default="document", server_default="document")
+    processing_status = Column(String, nullable=False, default="indexed", server_default="indexed")
+    processing_progress = Column(Integer, nullable=False, default=100, server_default="100")
+    processing_stage = Column(String, nullable=False, default="已入库", server_default="已入库")
+    processing_error = Column(Text, nullable=True)
+    media_metadata = Column(JSONB, nullable=False, default=dict, server_default="{}")
+
     # 逻辑上的归属
     workspace_id = Column(String, index=True)
     is_global = Column(Boolean, default=False)

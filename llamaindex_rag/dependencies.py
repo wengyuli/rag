@@ -59,7 +59,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         (User.email == username_or_email) | (User.username == username_or_email)
     ).first()
 
-    if user is None:
+    if user is None or not user.is_active:
         raise credentials_exception
     return user
 

@@ -23,7 +23,6 @@ async def get_dashboard_stats(
 ):
     # 1. 基础查询条件构建
     # 如果是 Admin，看全局；如果是 Member，只看自己部门 + 公共
-    global chart_dates, chart_values
     doc_query = db.query(DocumentRecord)
     chat_query = db.query(ChatSession)
 
@@ -61,50 +60,20 @@ async def get_dashboard_stats(
     # 4. 图表数据：文件类型分布 (PDF vs Word vs TXT)
     # 这是一个简单的内存统计，数据量大时建议用 SQL Group By
     all_docs = doc_query.all()
-    type_stats = {"PDF": 0, "Word": 0, "Text": 0, "Other": 0}
-
+    type_stats = {"文档": 0, "图片": 0, "视频": 0}
     for d in all_docs:
-        ext = d.filename.split('.')[-1].lower()
-        if ext == 'pdf':
-            type_stats["PDF"] += 1
-        elif ext in ['doc', 'docx']:
-            type_stats["Word"] += 1
-        elif ext in ['txt', 'md']:
-            type_stats["Text"] += 1
-        else:
-            type_stats["Other"] += 1
+        category = {"image": "图片", "video": "视频"}.get(d.media_type, "文档")
+        type_stats[category] += 1
 
-        # 真实活跃度统计
-        # 1. 确定时间范围 (最近7天)
-        today = datetime.datetime.utcnow().date()
-        seven_days_ago = today - datetime.timedelta(days=6)
-
-        # 2. 查询最近7天的所有会话记录
-        # 注意：这里复用了上面的 chat_query (已经过滤了权限)
-        recent_sessions = chat_query.filter(
-            ChatSession.created_at >= seven_days_ago
-        ).all()
-
-        # 3. 在内存中统计每天的数量
-        # 格式: {"12-01": 5, "12-02": 0, ...}
-        daily_counts = {}
-        for session in recent_sessions:
-            # 转成 "MM-DD" 格式字符串
-            day_str = session.created_at.strftime("%m-%d")
-            daily_counts[day_str] = daily_counts.get(day_str, 0) + 1
-
-        # 4. 生成连续的日期列表 (X轴) 和 对应数据 (Y轴)
-        # 即使某天没有数据，也要填 0，否则图表会断裂
-        chart_dates = []
-        chart_values = []
-
-        for i in range(6, -1, -1):
-            # 从6天前遍历到今天
-            date_obj = today - datetime.timedelta(days=i)
-            date_str = date_obj.strftime("%m-%d")
-
-            chart_dates.append(date_str)
-            chart_values.append(daily_counts.get(date_str, 0))
+    today = datetime.datetime.utcnow().date()
+    seven_days_ago = today - datetime.timedelta(days=6)
+    recent_sessions = chat_query.filter(ChatSession.created_at >= seven_days_ago).all()
+    daily_counts = {}
+    for session in recent_sessions:
+        day_str = session.created_at.strftime("%m-%d")
+        daily_counts[day_str] = daily_counts.get(day_str, 0) + 1
+    chart_dates = [(today - datetime.timedelta(days=i)).strftime("%m-%d") for i in range(6, -1, -1)]
+    chart_values = [daily_counts.get(day, 0) for day in chart_dates]
 
     # 查询workspace名称
     dep_query = db.query(Workspace).filter(Workspace.id == current_user.department_id).first()

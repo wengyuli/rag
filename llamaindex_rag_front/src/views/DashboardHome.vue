@@ -18,7 +18,7 @@
               <FileText class="w-8 h-8" />
             </div>
             <div>
-              <div class="text-sm text-slate-500">知识库文档</div>
+              <div class="text-sm text-slate-500">总资料数</div>
               <div class="text-2xl font-bold text-slate-800">{{ stats.metrics.total_docs }} <span class="text-xs font-normal text-slate-400">份</span></div>
             </div>
           </div>
@@ -66,15 +66,15 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-80">
           <!-- 知识分布 (饼图) -->
           <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 lg:col-span-1 flex flex-col">
-            <h3 class="font-bold text-slate-700 mb-4">知识类型分布</h3>
+            <h3 class="font-bold text-slate-700 mb-4">资料类型分布</h3>
             <div class="flex-1 min-h-0">
               <v-chart class="chart" :option="pieOption" autoresize />
             </div>
           </div>
   
-          <!-- 活跃趋势 (折线图 - 这里用模拟数据演示UI) -->
+          <!-- 最近 7 天真实新增会话数量 -->
           <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 lg:col-span-2 flex flex-col">
-            <h3 class="font-bold text-slate-700 mb-4">近7天活跃趋势 (Mock)</h3>
+            <h3 class="font-bold text-slate-700 mb-4">近 7 天新增会话</h3>
             <div class="flex-1 min-h-0">
               <v-chart class="chart" :option="lineOption" autoresize />
             </div>
@@ -84,8 +84,8 @@
         <!-- 4. 最近上传列表 -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div class="p-6 border-b border-slate-100 flex justify-between items-center">
-            <h3 class="font-bold text-slate-700">最新入库文档</h3>
-            <button @click="$emit('switch-tab', 'knowledge')" class="text-sm text-blue-600 hover:underline">管理文档 &rarr;</button>
+            <h3 class="font-bold text-slate-700">最近上传资料</h3>
+            <button @click="$emit('switch-tab', 'knowledge')" class="text-sm text-blue-600 hover:underline">管理资料 &rarr;</button>
           </div>
           <table class="w-full text-left">
             <thead class="bg-slate-50 text-xs uppercase text-slate-500">

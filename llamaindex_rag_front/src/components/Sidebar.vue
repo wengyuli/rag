@@ -155,7 +155,7 @@ const { sessionList, fetchSessions, loadSession, createNewSession, deleteSession
 const allTabs = [
   { id: 'home', label: '系统概览', icon: LayoutDashboard, roles: ['admin', 'member'] },
   { id: 'chat', label: '智能问答', icon: MessageSquare, roles: ['admin', 'member'] },
-  { id: 'knowledge', label: '知识库管理', icon: Database, roles: ['admin', 'member'] },
+  { id: 'knowledge', label: '资料库', icon: Database, roles: ['admin', 'member'] },
   { id: 'departments', label: '部门管理', icon: Building2, roles: ['admin'] },
   { id: 'users', label: '人员管理', icon: Users, roles: ['admin'] },
 ]

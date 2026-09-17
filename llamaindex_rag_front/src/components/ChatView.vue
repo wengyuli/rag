@@ -49,21 +49,24 @@
           <div v-if="msg.role === 'assistant' && msg.sources && !msg.thinking" class="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-500">
             <p class="font-semibold mb-1 text-slate-700">引用来源:</p>
             <div v-if="msg.sources.length > 0" class="space-y-1">
-              <div 
-                v-for="(s, i) in msg.sources" :key="i" 
-                @click="openPreview(s)" 
-                class="flex items-center gap-2 p-1.5 rounded hover:bg-slate-100 cursor-pointer transition group/file">
+              <button
+                v-for="(s, i) in msg.sources" :key="i"
+                @click="openPreview(s)"
+                class="flex w-full text-left items-center gap-2 p-2 rounded hover:bg-slate-100 transition group/file">
                 <component 
                   :is="getFileIcon(s.file_name || s).icon" 
                   :class="['w-4 h-4', getFileIcon(s.file_name || s).color]" 
                 />
                 <!-- 如果 s 是对象显示 s.file_name，如果是字符串显示 s -->
-                <span class="hover:underline">{{ s.file_name || s }}</span>
-              </div>
+                <span class="hover:underline break-all">{{ s.file_name || s }}</span>
+                <span v-if="sourceLocation(s)" class="text-blue-600 whitespace-nowrap ml-auto">{{ sourceLocation(s) }}</span>
+                <span v-if="s.source_kind === 'audio'" class="text-slate-400 shrink-0">语音</span>
+                <span v-else-if="s.source_kind === 'visual'" class="text-slate-400 shrink-0">画面</span>
+              </button>
             </div>
             <div v-else class="text-slate-400 italic flex items-center gap-1">
               <span class="w-3 h-3 inline-block"></span>
-              无相关文档
+              无相关资料
             </div>
           </div>
         </div>
@@ -72,10 +75,10 @@
 
     <div class="p-4 bg-white border-t shrink-0">
       <div class="max-w-4xl mx-auto relative">
-        <input v-model="input" @keydown.enter="handleSend" type="text" placeholder="请输入问题..."
+        <input v-model="input" @keydown.enter="handleSend" type="text" placeholder="例如：培训视频里如何关闭设备？操作说明有哪些注意事项？" aria-label="向企业资料助手提问"
           class="w-full p-4 pr-12 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm select-text"
           :disabled="isLoading" />
-        <button @click="handleSend"
+        <button @click="handleSend" :disabled="isLoading || !input.trim()" aria-label="发送问题"
           class="absolute right-3 top-3 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
           <Send class="w-4 h-4" />
         </button>
@@ -87,6 +90,11 @@
       :highlight-text="previewHighlight"
       :user-token="user.token"
       :doc-workspace-id="docWorkspaceId"
+      :document-id="previewSource.document_id"
+      :media-type="previewSource.media_type"
+      :start-seconds="previewSource.start_seconds"
+      :end-seconds="previewSource.end_seconds"
+      :page="previewSource.page"
       @close="isPreviewOpen = false"
     />
   </div>
@@ -97,18 +105,20 @@
 import { ref, watch, nextTick, onMounted } from 'vue' 
 import { 
   MessageSquare, Send, FileText, Loader2, Copy, Check,
-  FileSpreadsheet, FileCode, File, FileImage
+  FileSpreadsheet, FileCode, File, FileImage, FileVideo
  } from 'lucide-vue-next'
 import { useChat } from '../composables/useChat'
 import { useWorkspace } from '../composables/useWorkspace'
 import MarkdownIt from 'markdown-it'
 import FilePreviewModal from '../components/FilePreviewModal.vue'
 import { useAuth } from '../composables/useAuth'
+import { sourceLocation } from '../utils/media'
 
 const isPreviewOpen = ref(false)
 const previewFileName = ref('')
 const previewHighlight = ref('')
 const docWorkspaceId = ref('')
+const previewSource = ref({})
 const { user } = useAuth()
 
 const md = new MarkdownIt()
@@ -125,12 +135,13 @@ const handleSend = () => {
   input.value = ''
 }
 
-const openPreview = (source) => {
-  // source 对象应该包含: { file_name: 'xxx.pdf', text_chunk: '...' }
-  previewFileName.value = source.file_name || source // 兼容旧数据
-  previewHighlight.value = source.text_chunk || ''   // 获取高亮片段
-  isPreviewOpen.value = true,
-  docWorkspaceId.value = source.workspace_id || ''
+const openPreview = source => {
+  const citation = typeof source === 'string' ? { file_name: source } : source
+  previewFileName.value = citation.file_name || ''
+  previewHighlight.value = citation.text_chunk || ''
+  docWorkspaceId.value = citation.workspace_id || ''
+  previewSource.value = citation
+  isPreviewOpen.value = true
 }
 
 const copyToClipboard = async (text, idx) => {
@@ -183,7 +194,13 @@ const getFileIcon = (filename) => {
     case 'jpg':
     case 'png':
     case 'jpeg':
+    case 'webp':
       return { icon: FileImage, color: 'text-purple-500' } // 图片用紫色
+    case 'mp4':
+    case 'mov':
+    case 'webm':
+    case 'mkv':
+      return { icon: FileVideo, color: 'text-amber-600' }
     default:
       return { icon: File, color: 'text-slate-400' } // 未知格式
   }

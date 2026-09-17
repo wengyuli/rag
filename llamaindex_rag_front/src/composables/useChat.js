@@ -102,7 +102,8 @@ export function useChat() {
 
   // D. 发送消息
   const sendMessage = async (message) => {
-    if (!message.trim()) return
+    if (!message.trim() || isLoading.value) return
+    isLoading.value = true
 
     const userText = message
     messages.value.push({ role: 'user', content: userText })
@@ -162,6 +163,10 @@ export function useChat() {
               messages.value[aiMsgIndex].sources = msg.data
               // 注意：收到 sources 时不要关 thinking，让用户知道还在生成正文
             } 
+            else if (msg.type === 'error') {
+              messages.value[aiMsgIndex].content += `\n[错误: ${msg.data || '回答生成失败，请重试'}]`
+              messages.value[aiMsgIndex].thinking = false
+            }
             else if (msg.type === 'content') {
               // ✅ 修改点：只有收到正文内容时，才停止思考动画
               if (messages.value[aiMsgIndex].thinking) {
@@ -188,6 +193,8 @@ export function useChat() {
       console.error(error)
       messages.value[aiMsgIndex].thinking = false
       messages.value[aiMsgIndex].content += `\n[错误: ${error.message}]`
+    } finally {
+      isLoading.value = false
     }
   }
 

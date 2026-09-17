@@ -1,97 +1,103 @@
-/**
- * 文档管理模块
- *
- * 负责文档的上传、列表获取、删除等操作
- * 管理文档状态、工作区关联、权限控制等功能
- *
- * @author Guo Lijian
- * @version 1.0.0
- * @since 2025-12-06
- */
-
-import { ref, watch } from 'vue'
+/** Enterprise asset upload and processing status polling. Original document module by Guo Lijian. */
+import { ref, watch, onScopeDispose, onActivated, onDeactivated } from 'vue'
 import { useWorkspace } from './useWorkspace'
 import { useAuth } from './useAuth'
 
-const { user } = useAuth()
-
 export function useDocuments() {
+  const { user } = useAuth()
   const { currentWorkspace } = useWorkspace()
-  
-  const docs = ref([])        // 文档列表
+  const docs = ref([])
   const isUploading = ref(false)
-  const isLoading = ref(false) // 加载列表时的状态
+  const isLoading = ref(false)
+  const listError = ref('')
+  let pollTimer
+  let listController
+  let disposed = false
+  let active = true
 
-  // 1. 获取文档列表的核心方法
-  const fetchDocuments = async () => {
-    if (!currentWorkspace.value) return
-    
-    isLoading.value = true
+  const readError = async (response, fallback) => {
+    const data = await response.json().catch(() => null)
+    return typeof data?.detail === 'string' ? data.detail : `${fallback}（${response.status}）`
+  }
+
+  const fetchDocuments = async ({ silent = false } = {}) => {
+    clearTimeout(pollTimer)
+    listController?.abort()
+    if (disposed || !active || !user.value.token) return
+    const controller = new AbortController()
+    listController = controller
+    if (!silent) isLoading.value = true
     try {
-      // 构造请求 URL，带上 workspace_id 参数
-      const url = `/api/documents?workspace_id=${currentWorkspace.value.id}`
-      
-      const res = await fetch(url, {
-        method: 'GET',
-        headers: { 'Authorization': `Bearer ${user.value.token}` }
+      const workspace = currentWorkspace.value?.id || 'global'
+      const response = await fetch(`/api/documents?workspace_id=${encodeURIComponent(workspace)}`, {
+        headers: { Authorization: `Bearer ${user.value.token}` },
+        signal: controller.signal,
       })
-      if (!res.ok) throw new Error('获取列表失败')
-      
-      const data = await res.json()
-      docs.value = data // 直接赋值后端返回的真实数据
-      
+      if (!response.ok) throw new Error(await readError(response, '获取资料列表失败'))
+      const data = await response.json()
+      if (controller.signal.aborted || disposed) return
+      docs.value = data
+      listError.value = ''
     } catch (error) {
-      console.error("加载文档出错:", error)
-      docs.value = [] // 出错置空
+      if (error.name !== 'AbortError' && !disposed) listError.value = error.message
     } finally {
-      isLoading.value = false
+      if (listController === controller && !disposed && active) {
+        isLoading.value = false
+        if (docs.value.some(doc => ['queued', 'processing'].includes(doc.status))) {
+          pollTimer = setTimeout(() => fetchDocuments({ silent: true }), 4000)
+        }
+      }
     }
   }
 
-  // 2. 自动监听部门变化
-  // immediate: true 保证组件刚加载时也会执行一次
-  watch(currentWorkspace, () => {
-    fetchDocuments()
-  }, { immediate: true })
-
-  // 3. 上传文件 (修改版：上传完自动刷新)
   const uploadFile = async (file, isPublic = false) => {
     isUploading.value = true
-    const formData = new FormData()
-    formData.append('file', file)
-    
-    // 🔥 关键：必须显式添加 is_public 字段
-    // 后端 FastAPI 用 is_public: bool = Form(False) 接收
-    formData.append('is_public', isPublic) 
-
     try {
-      const res = await fetch('/api/documents/upload', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${user.value.token}`
-        },
-        body: formData
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('is_public', String(isPublic))
+      const response = await fetch('/api/documents/upload', {
+        method: 'POST', headers: { Authorization: `Bearer ${user.value.token}` }, body: formData,
       })
-
-      if (!res.ok) {
-        const err = await res.json()
-        throw new Error(err.detail || '上传失败')
-      }
-
-      // 上传成功后刷新列表
-      // 注意：这里需要根据逻辑决定是否重新 fetch，或者由组件控制
-      // 简单起见，这里返回 filename
-      return file.name
+      if (!response.ok) throw new Error(await readError(response, '上传失败'))
+      const result = await response.json()
+      await fetchDocuments({ silent: true })
+      return result
     } finally {
       isUploading.value = false
     }
   }
 
-  return {
-    docs,
-    isUploading,
-    isLoading, // 导出加载状态供前端显示 loading 动画
-    uploadFile,
-    fetchDocuments
+  const mutateDocument = async (id, action) => {
+    const response = await fetch(`/api/documents/${encodeURIComponent(id)}${action === 'retry' ? '/retry' : ''}`, {
+      method: action === 'retry' ? 'POST' : 'DELETE',
+      headers: { Authorization: `Bearer ${user.value.token}` },
+    })
+    if (!response.ok) throw new Error(await readError(response, action === 'retry' ? '重试失败' : '删除失败'))
+    await fetchDocuments({ silent: true })
   }
+
+  watch(() => currentWorkspace.value?.id, () => {
+    docs.value = []
+    fetchDocuments()
+  }, { immediate: true })
+
+  onActivated(() => {
+    active = true
+    fetchDocuments({ silent: docs.value.length > 0 })
+  })
+  onDeactivated(() => {
+    active = false
+    clearTimeout(pollTimer)
+    listController?.abort()
+    isLoading.value = false
+  })
+
+  onScopeDispose(() => {
+    disposed = true
+    clearTimeout(pollTimer)
+    listController?.abort()
+  })
+
+  return { docs, isUploading, isLoading, listError, uploadFile, fetchDocuments, mutateDocument }
 }

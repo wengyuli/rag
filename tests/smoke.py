@@ -104,7 +104,7 @@ def main():
         ).encode() + file_bytes + f"\r\n--{boundary}--\r\n".encode()
         result = json_request("/api/documents/upload", "POST", body,
                               f"multipart/form-data; boundary={boundary}")
-        require(result.get("status") == "success" and result.get("filename") == filename,
+        require(result.get("status") in {"success", "queued"} and result.get("filename") == filename,
                 "Upload did not confirm the expected test filename")
         report["document_action"] = "uploaded"
 
@@ -112,6 +112,11 @@ def main():
         matches = [item for item in document_list()
                    if item.get("name") == filename and item.get("isGlobal") is True]
         require(len(matches) == 1, "Expected exactly one public test document")
+        deadline = time.monotonic() + timeout
+        while matches[0].get("status") in {"queued", "processing"} and time.monotonic() < deadline:
+            time.sleep(2)
+            matches = [item for item in document_list() if item.get("name") == filename and item.get("isGlobal") is True]
+            require(len(matches) == 1, "Test document disappeared during indexing")
         require(matches[0].get("status") == "indexed", "Test document is not indexed")
 
     def verify_file():

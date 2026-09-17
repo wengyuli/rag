@@ -1,13 +1,18 @@
 from pathlib import Path
+import argparse
 import hashlib
 import json
 import shutil
 import subprocess
 
 root = Path(__file__).resolve().parent
-model_dir = root / "runtime/models/bge-reranker-base"
+parser = argparse.ArgumentParser()
+parser.add_argument("--manifest", default="models-manifest.json")
+parser.add_argument("--model-dir", default="runtime/models/bge-reranker-base")
+args = parser.parse_args()
+model_dir = root / args.model_dir
 model_dir.mkdir(parents=True, exist_ok=True)
-manifest_path = root / "models-manifest.json"
+manifest_path = root / args.manifest
 manifest = json.loads(manifest_path.read_text())
 repo = manifest["repository"]
 revision = manifest["revision"]
@@ -37,5 +42,5 @@ for name, expected in manifest["files"].items():
         candidate.replace(target)
     print("Verified", name, target.stat().st_size, "bytes", flush=True)
 
-shutil.copyfile(manifest_path, root / "runtime/reranker-manifest.json")
-print("Reranker ready:", revision, flush=True)
+shutil.copyfile(manifest_path, root / "runtime" / (model_dir.name + "-manifest.json"))
+print("Model ready:", repo, revision, flush=True)

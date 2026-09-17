@@ -19,3 +19,7 @@
 - [前端原始 README](llamaindex_rag_front/README.md)
 
 模型不包含在仓库内，下载和使用模型时适用各模型发布方的条款。
+
+## 新增媒体组件
+
+图片和视频画面使用 [Qwen3-VL](https://ollama.com/library/qwen3-vl)；语音使用 [Systran/faster-whisper-small](https://huggingface.co/Systran/faster-whisper-small)，推理由 [faster-whisper](https://github.com/SYSTRAN/faster-whisper) 实现。模型权重均不随源码上传。组件与模型分别遵循其原始许可；FFmpeg 来自 Debian 软件包。

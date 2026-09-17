@@ -18,6 +18,10 @@ until docker compose exec -T ollama ollama list >/dev/null 2>&1; do
 done
 docker compose exec -T ollama ollama pull qwen2.5:3b
 docker compose exec -T ollama ollama pull bge-m3
+rag_vision_model=$(docker compose config --format json | python3 -c 'import json, sys; print(json.load(sys.stdin)["services"]["backend"]["environment"]["VISION_MODEL"])')
+docker compose exec -T ollama ollama pull "$rag_vision_model"
 python3 download_models.py
+python3 download_models.py --manifest whisper-manifest.json --model-dir runtime/models/faster-whisper-small
 docker compose up -d --build
-printf '%s\n' "Web: http://127.0.0.1:${WEB_PORT:-8090}" 'Login: admin / admin123' 'The backend may need a moment to finish loading the reranker.'
+rag_web_port=$(docker compose config --format json | python3 -c 'import json, sys; print(json.load(sys.stdin)["services"]["frontend"]["ports"][0]["published"])')
+printf '%s\n' "Web: http://127.0.0.1:$rag_web_port" 'Login: admin / admin123' 'The backend may need a moment to finish loading the reranker.'

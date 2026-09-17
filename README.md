@@ -1,8 +1,18 @@
-# 本地 RAG 知识库 · Docker 部署
+# 企业多媒体资料问答 · 本地 Docker 部署
 
 基于 rogers0602 的 [llamaindex_rag 后端](https://github.com/rogers0602/llamaindex_rag)和 [llamaindex_rag_front 前端](https://github.com/rogers0602/llamaindex_rag_front)，整理为同一个仓库，提供已在 Apple Silicon Mac 上验证的 Docker 部署配置。
 
-支持上传文档、知识库问答、来源引用、原文预览和历史会话。前端、后端、数据库和 Ollama 均在 Docker 中运行，使用本地模型。
+统一管理企业文档、设备图片和培训视频，并从资料中检索回答。前端、后端、数据库和 Ollama 均在 Docker 中运行，图片理解与语音识别使用本地模型。这是多媒体 RAG 扩展，不需要训练或微调模型权重。
+
+## 可以做什么
+
+- **文档**：PDF、DOCX、PPTX、XLSX、CSV、TXT、Markdown 解析入库。PDF 回答保留页码，扫描页通过本地视觉模型识别。
+- **图片**：JPG、JPEG、PNG、WebP 描述可见设备、部件和文字，回答可打开原图核对。
+- **视频**：MP4、MOV、WebM、MKV 均匀抽帧分析，同时用本地 Whisper 转写语音。回答保留画面或语音的时间点，点击引用可定位播放。
+- **资料管理**：按名称搜索、按类型筛选、上传进度、后台解析状态、失败重试、原文件预览或下载、删除资料及检索索引。
+- **团队权限**：管理员管理全部资料并上传公共资料；成员读写本部门资料并读取公共资料。列表、原文件、缩略图和送入模型的检索片段都会检查权限。
+
+上传后先显示“排队中 / 处理中”，变为“可问答”后再提问。同名文件不会自动覆盖已有资料。任务保存在数据库中；服务重启后会重新领取未完成任务并清理部分索引，已完成的画面识别结果可以复用。当前采用一个串行解析进程，适合本机试用和小团队验证。
 
 ## 首次部署
 
@@ -40,6 +50,10 @@ docker compose logs --tail=100 backend ollama
 
 # 服务就绪后，执行虚构测试文档的完整问答验证
 python3 tests/smoke.py
+
+# 生成虚构的设备图片、10 秒有声视频和扫描 PDF（模型服务就绪后）
+docker compose run --rm --no-deps -v "$PWD/tests:/tests:ro" -v "$PWD/runtime/test-media:/fixtures" backend python /tests/create_media_fixtures.py --output /fixtures
+python3 tests/multimodal_smoke.py
 ```
 
 停止后会保留数据库、文档和模型。`docker compose down -v` 会删除数据库和 Ollama 模型卷，日常停止请使用 `./stop.sh`。
@@ -58,6 +72,9 @@ COMPOSE_PROJECT_NAME=rag-test WEB_PORT=8092 API_PORT=8093 ./setup.sh
 | 对话 | Ollama `qwen2.5:3b` |
 | 向量化 | Ollama `bge-m3`，1024 维 |
 | 重排序 | `BAAI/bge-reranker-base` |
+| 图片 / 视频画面 | Ollama `qwen3-vl:4b-instruct` |
+| 视频语音 | `Systran/faster-whisper-small`，CPU / int8 |
+| 视频处理 | FFmpeg |
 | 存储 | PostgreSQL 16 + pgvector |
 | 网页 | Vue 3 + Nginx |
 | 后端 | FastAPI + LlamaIndex + CPU PyTorch |
@@ -66,11 +83,22 @@ Mac Docker 环境中使用 CPU 推理。Ollama 云功能已关闭，应用问答
 
 - 上传文件：`runtime/files/`
 - 重排序模型：`runtime/models/bge-reranker-base/`
-- 重排序模型固定版本与 SHA-256：`models-manifest.json`；下载脚本逐个校验文件，并将清单写入 `runtime/reranker-manifest.json`
+- 语音模型：`runtime/models/faster-whisper-small/`，版本与 SHA-256 见 `whisper-manifest.json`
+- 新资料原文件与解析缓存：`runtime/files/_assets/`；旧版本文件路径继续兼容
+- 重排序模型固定版本与 SHA-256：`models-manifest.json`；下载脚本逐个校验文件，并将清单写入 `runtime/bge-reranker-base-manifest.json`
 - 数据库卷：`rag_pg_data`
 - Ollama 模型卷：`rag_ollama_data`
 
 模型文件、`.env`、上传文件、对话数据库、日志和生成的测试报告均不提交到 Git。
+
+## 当前限制
+
+- 单文件最多 **128 MB**；视频最多 **5 分钟**，最多取 **6 个画面**。视频使用原文件在浏览器播放，浏览器不支持的编码可下载查看。
+- PDF 最多 200 页，其中需要视觉识别的扫描页最多 20 页；较大文件请分段上传。DOCX/PPTX 中的嵌入图片目前不单独理解。
+- 视频画面是采样，不保证覆盖短暂动作；语音转写、细小文字、仪表读数和表格可能出错。引用回原始资料用于核对，不能把生成的操作步骤当作已完成的安全检查。
+- 默认 Mac Docker 使用 CPU；图片、视频及扫描页首次解析可能需要数分钟。上传和问答共享本机模型资源，并发能力尚未压测。
+- 资料搜索目前按文件名筛选；语义内容检索在智能问答中进行。暂不包括在线文件编辑、音频单独上传、全文审阅审批或视频剪辑。
+- 首次模型下载需要联网；处理资料时使用容器中的本地服务，未配置外部 AI API。Whisper 部署方式参考 [faster-whisper 官方说明](https://github.com/SYSTRAN/faster-whisper)。
 
 ## 已验证范围
 
@@ -81,8 +109,29 @@ Mac Docker 环境中使用 CPU 推理。Ollama 云功能已关闭，应用问答
 - 会话持久化、网页历史会话、点击引用查看原文通过。
 - 小文档上传约 3.1 秒，单次问答约 9.1 秒，整轮 API 验证约 12.4 秒。
 
-以上为一次小文档测试，不代表大文档或并发性能。扫描 PDF 的 OCR、复杂表格、旧版 Office、LDAP、权限隔离和多人并发不在此次验证范围内。
+以上为一次小文档测试，不代表大文档或并发性能。此处为升级前文档基线。多媒体版本验证范围见下方；复杂表格、旧版 Office、LDAP 和多人并发尚未验证。
 测试脚本会保存本机结果到 `tests/latest-smoke.json`。当时的依赖版本留存在 [docs/python-dependencies-tested.txt](docs/python-dependencies-tested.txt)，这是实测快照，当前 Dockerfile 安装时仍由依赖解析器选择版本。
+
+### 2026-09-17 多媒体版本实测
+
+- 图片、10 秒有声视频、2 页无文字层扫描 PDF：真实本地模型解析、向量索引、原文件下载与缩略图通过。
+- 图片和扫描 PDF 问答正确返回 `WIDGET ZX-17` 与 `0.6 MPa`；视频问答正确返回“关闭蓝色阀门，再按绿色按钮”。实时来源与历史保存一致，并保留视频时间点及 PDF 页码。
+- 本机首次处理这三份虚构资料并完成三次问答共约 **298 秒**；该视频采样了 2 帧。测试素材的画面文字和合成语音为英语，提问和回答为中文。这不是长视频或多人并发性能承诺。
+- 新版停顿分段在禁网 CPU 容器中实测，将两步语音分别定位为 `0.00–2.12` 秒和 `4.91–6.95` 秒。
+- 33 项隔离测试通过，覆盖解析、失败降级、上传大小及格式、重复上传、权限、重试、恢复、视频 Range 206/416 和引用去重。测试使用临时 SQLite 与线程锁模拟事务锁，未覆盖 PostgreSQL 多实例断线故障切换。
+- 浏览器实测：图片/视频预览、自动进度、类型筛选、名称搜索、旧资料与旧聊天引用兼容通过。
+
+可在后端镜像中运行隔离测试（不会访问业务数据库或模型服务）：
+
+```sh
+docker run --rm --network none -e HF_HUB_OFFLINE=1 -e TRANSFORMERS_OFFLINE=1 -v "$PWD:/repo:ro" -w /repo "$(docker compose images -q backend)" python -m unittest discover -s tests -p 'test_*.py' -v
+```
+
+## 升级现有安装
+
+升级前备份 PostgreSQL 数据库与 `runtime/files/`。启动时自动添加媒体字段，保留旧文档和聊天记录，不清空数据。然后执行 `./setup.sh` 下载新增视觉与语音模型并构建镜像。
+
+不要改变已有数据库的 `DB_PASSWORD`，也不要为了升级删除数据卷。若需要回退应用代码，先停服务再切换到升级前提交；新增数据库列可以保留。
 
 ## 本仓库调整
 
@@ -91,7 +140,7 @@ Mac Docker 环境中使用 CPU 推理。Ollama 云功能已关闭，应用问答
 - 选择 CPU 版 PyTorch，补充 python-pptx、sentencepiece 和 libmagic。
 - 补齐固定版本与 SHA-256 校验的模型下载、配置初始化和启停脚本。
 - 修正管理员种子数据插入后的用户 ID 序列。
-- Nginx 上传上限为 50MB，问答代理超时为 600 秒。
+- 上传接口限制 128 MB，Nginx 为 multipart 请求保留少量额外空间；问答代理超时为 600 秒。
 
 前后端目录中的原始 Docker/Compose 文件保留作上游参考；部署请使用根目录配置。
 

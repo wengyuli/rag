@@ -6,7 +6,7 @@
 *.key
 
 # Runtime data, models, logs, and uploads
-/runtime/
+/runtime
 llamaindex_rag/files/
 llamaindex_rag/models/*
 !llamaindex_rag/models/readme.txt
@@ -22,6 +22,6 @@ __pycache__/
 node_modules/
 dist/
 .pytest_cache/
-tests/latest-smoke.json
+tests/latest-*.json
 .DS_Store
 .vscode/
