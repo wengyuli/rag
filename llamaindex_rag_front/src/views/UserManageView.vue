@@ -1,10 +1,10 @@
 <template>
     <div class="h-full p-8 overflow-y-auto bg-slate-50">
       <div class="max-w-5xl mx-auto">
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-2xl font-bold text-slate-800">人员管理</h2>
+        <div class="flex flex-wrap justify-between items-center gap-3 mb-6">
+          <h2 class="text-2xl font-bold text-slate-800">{{ t("人员管理") }}</h2>
           <button @click="showAddModal = true" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 shadow transition">
-            + 新增人员
+            {{ t('+ 新增人员') }}
           </button>
         </div>
   
@@ -15,7 +15,8 @@
             <input 
               v-model="filters.keyword" 
               type="text" 
-              placeholder="搜索用户名..." 
+              :placeholder="t('搜索用户名...')"
+              :aria-label="t('搜索用户名...')"
               class="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
             />
             <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -26,12 +27,13 @@
           <!-- 部门筛选 -->
           <div class="w-48">
             <select 
-              v-model="filters.deptId" 
+              v-model="filters.deptId"
+              :aria-label="t('部门')"
               class="w-full py-2 px-3 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white"
             >
-              <option value="">所有部门</option>
+              <option value="">{{ t("所有部门") }}</option>
               <option v-for="d in depts" :key="d.id" :value="d.id">
-                {{ d.name }}
+                {{ displayWorkspace(d.name, d.id) }}
               </option>
             </select>
           </div>
@@ -45,24 +47,24 @@
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
-            重置筛选
+            {{ t('重置筛选') }}
           </button>
   
           <div class="ml-auto text-sm text-slate-400">
-            共 {{ filteredUsers.length }} 人
+            {{ t('共 {count} 人', { count: filteredUsers.length.toLocaleString(intlLocale) }) }}
           </div>
         </div>
   
         <!-- 人员列表 -->
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden min-h-[400px]">
-          <table class="w-full text-left">
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-x-auto min-h-[400px]">
+          <table class="w-full min-w-[760px] text-left">
             <thead class="bg-slate-50 border-b">
               <tr>
-                <th class="p-4 text-sm font-semibold text-slate-600">用户名</th>
-                <th class="p-4 text-sm font-semibold text-slate-600">邮箱</th>
-                <th class="p-4 text-sm font-semibold text-slate-600">部门</th>
-                <th class="p-4 text-sm font-semibold text-slate-600">角色</th>
-                <th class="p-4 text-right text-sm font-semibold text-slate-600">操作</th>
+                <th class="p-4 text-sm font-semibold text-slate-600 whitespace-nowrap">{{ t("用户名") }}</th>
+                <th class="p-4 text-sm font-semibold text-slate-600 whitespace-nowrap">{{ t("邮箱") }}</th>
+                <th class="p-4 text-sm font-semibold text-slate-600 whitespace-nowrap">{{ t("部门") }}</th>
+                <th class="p-4 text-sm font-semibold text-slate-600 whitespace-nowrap">{{ t("角色") }}</th>
+                <th class="p-4 text-right text-sm font-semibold text-slate-600 whitespace-nowrap">{{ t("操作") }}</th>
               </tr>
             </thead>
             <tbody>
@@ -72,23 +74,23 @@
                 <td class="p-4 text-slate-500 text-sm">{{ u.email }}</td>
                 <td class="p-4">
                   <span class="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs">
-                    {{ u.dept_name }}
+                    {{ u.dept_id ? displayWorkspace(u.dept_name, u.dept_id) : t('未分配') }}
                   </span>
                 </td>
                 <td class="p-4">
                   <span :class="['px-2 py-1 rounded-full text-xs font-bold uppercase', u.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-green-100 text-green-700']">
-                    {{ u.role }}
+                    {{ u.role === 'admin' ? t('管理员') : u.role === 'member' ? t('成员') : u.role }}
                   </span>
                 </td>
                 <td class="p-4 text-right">
-                  <button v-if="u.role !== 'admin'" @click="deleteUser(u)" class="text-red-500 hover:text-red-700 text-sm font-medium">删除</button>
+                  <button v-if="u.role !== 'admin'" @click="deleteUser(u)" class="text-red-500 hover:text-red-700 text-sm font-medium">{{ t("删除") }}</button>
                 </td>
               </tr>
               
               <!-- 空状态提示 -->
               <tr v-if="filteredUsers.length === 0">
                 <td colspan="5" class="p-12 text-center text-slate-400">
-                  没有找到符合条件的人员
+                  {{ t('没有找到符合条件的人员') }}
                 </td>
               </tr>
             </tbody>
@@ -96,35 +98,35 @@
         </div>
   
         <!-- 新增人员弹窗 (保持不变) -->
-        <div v-if="showAddModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div v-if="showAddModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
           <div class="bg-white p-6 rounded-xl w-full max-w-md shadow-2xl">
-            <h3 class="text-lg font-bold mb-4">添加新成员</h3>
+            <h3 class="text-lg font-bold mb-4">{{ t("添加新成员") }}</h3>
             <div class="space-y-4">
               <div>
-                <label class="text-sm text-slate-600">用户名 (登录账号)</label>
-                <input v-model="form.username" class="w-full border p-2 rounded mt-1" placeholder="请输入唯一用户名" />
+                <label class="text-sm text-slate-600">{{ t("用户名 (登录账号)") }}</label>
+                <input v-model="form.username" class="w-full border p-2 rounded mt-1" :placeholder="t('请输入唯一用户名')" />
               </div>
               
               <div>
-                <label class="text-sm text-slate-600">初始密码</label>
-                <input v-model="form.password" type="password" class="w-full border p-2 rounded mt-1" placeholder="请输入密码" />
+                <label class="text-sm text-slate-600">{{ t("初始密码") }}</label>
+                <input v-model="form.password" type="password" class="w-full border p-2 rounded mt-1" :placeholder="t('请输入密码')" />
               </div>
               
               <div>
-                <label class="text-sm text-slate-600">确认密码</label>
-                <input v-model="form.confirmPassword" type="password" class="w-full border p-2 rounded mt-1" placeholder="请再次输入密码" />
+                <label class="text-sm text-slate-600">{{ t("确认密码") }}</label>
+                <input v-model="form.confirmPassword" type="password" class="w-full border p-2 rounded mt-1" :placeholder="t('请再次输入密码')" />
               </div>
   
               <div>
-                <label class="text-sm text-slate-600">所属部门</label>
+                <label class="text-sm text-slate-600">{{ t("所属部门") }}</label>
                 <select v-model="form.department_id" class="w-full border p-2 rounded mt-1 bg-white">
-                  <option v-for="d in depts" :key="d.id" :value="d.id">{{ d.name }}</option>
+                  <option v-for="d in depts" :key="d.id" :value="d.id">{{ displayWorkspace(d.name, d.id) }}</option>
                 </select>
               </div>
             </div>
             <div class="mt-6 flex justify-end gap-3">
-              <button @click="showAddModal = false" class="text-slate-500 px-4 py-2 hover:bg-slate-100 rounded">取消</button>
-              <button @click="submitAdd" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">确定添加</button>
+              <button @click="showAddModal = false" class="text-slate-500 px-4 py-2 hover:bg-slate-100 rounded">{{ t("取消") }}</button>
+              <button @click="submitAdd" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">{{ t("确定添加") }}</button>
             </div>
           </div>
         </div>
@@ -136,8 +138,10 @@
   <script setup>
   import { ref, reactive, onMounted, computed } from 'vue' // 🔥 引入 computed
   import { useAuth } from '../composables/useAuth'
+  import { useI18n } from '../i18n'
   
   const { user } = useAuth()
+  const { t, intlLocale, displayWorkspace } = useI18n()
   const users = ref([]) // 原始数据
   const depts = ref([])
   const showAddModal = ref(false)
@@ -168,7 +172,7 @@
     })
   })
   
-  // 🔥 新增：重置筛选
+  // Reset both filters.
   const resetFilters = () => {
     filters.keyword = ''
     filters.deptId = ''
@@ -186,17 +190,17 @@
   
   const submitAdd = async () => {
     if(!form.username || !form.password || !form.department_id) {
-      alert("请填写完整信息")
+      alert(t('请填写完整信息'))
       return
     }
     
     if (form.password !== form.confirmPassword) {
-      alert("两次输入的密码不一致，请重新输入")
+      alert(t('两次输入的密码不一致，请重新输入'))
       return
     }
 
     if (form.password.length < 6) {
-      alert("密码至少需要6位")
+      alert(t('密码至少需要6位'))
       return
     }
     
@@ -216,7 +220,7 @@
     })
     
     if(res.ok) {
-      alert('添加成功')
+      alert(t('添加成功'))
       showAddModal.value = false
       form.username = ''; 
       form.password = ''; 
@@ -224,12 +228,12 @@
       fetchData()
     } else {
       const err = await res.json()
-      alert(err.detail || '添加失败')
+      alert(t(err.detail || '添加失败'))
     }
   }
   
   const deleteUser = async (u) => {
-    if(!confirm(`确定要删除用户 ${u.username} 吗？`)) return
+    if(!confirm(t('确定要删除用户 {name} 吗？', { name: u.username }))) return
     
     const res = await fetch(`/api/admin/users/${u.id}`, {
       method: 'DELETE',
@@ -238,7 +242,7 @@
     if(res.ok) {
       fetchData()
     } else {
-      alert("删除失败")
+      alert(t('删除失败'))
     }
   }
   

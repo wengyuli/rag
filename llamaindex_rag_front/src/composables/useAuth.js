@@ -13,6 +13,11 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useWorkspace } from './useWorkspace'
 
+// Keep interface preferences when ending or recovering an authenticated session.
+const clearAuthStorage = () => {
+  for (const key of ['user_info', 'access_token', 'last_session_id', 'activeTab']) localStorage.removeItem(key)
+}
+
 // 全局状态
 const user = ref({
   username: '',
@@ -50,7 +55,7 @@ export function useAuth() {
         }
       } catch(e) { 
         console.error("恢复登录态失败", e)
-        localStorage.clear()
+        clearAuthStorage()
       }
     }
   }
@@ -102,7 +107,7 @@ export function useAuth() {
   // 退出登录
   const logout = () => {
     user.value = { username: '', role: 'member', token: '', id: null }
-    localStorage.clear()
+    clearAuthStorage()
     // 退出时重置为公共
     setWorkspace({ id: 'global', name: '公共知识库' }) 
     router.push('/')

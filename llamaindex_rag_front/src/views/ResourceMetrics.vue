@@ -3,30 +3,30 @@
     <div class="max-w-6xl mx-auto space-y-6">
       <header class="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 class="text-2xl font-bold text-slate-800">资源监控</h1>
-          <p class="mt-2 text-sm text-slate-500">查看 CPU、内存和资料存储空间的实时使用情况。</p>
+          <h1 class="text-2xl font-bold text-slate-800">{{ t('资源监控') }}</h1>
+          <p class="mt-2 text-sm text-slate-500">{{ t('查看 CPU、内存和资料存储空间的实时使用情况。') }}</p>
         </div>
         <div class="flex flex-wrap items-center gap-3">
           <button type="button" @click="toggleAutoRefresh" :aria-pressed="autoRefresh"
             class="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 hover:border-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
             <Pause v-if="autoRefresh" class="w-4 h-4" /><Play v-else class="w-4 h-4" />
-            {{ autoRefresh ? '暂停自动刷新' : '恢复自动刷新' }}
+            {{ t(autoRefresh ? '暂停自动刷新' : '恢复自动刷新') }}
           </button>
           <button type="button" @click="fetchMetrics" :disabled="loading"
             class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
             <RefreshCw :class="['w-4 h-4', loading ? 'animate-spin' : '']" />
-            {{ loading ? '刷新中' : '立即刷新' }}
+            {{ t(loading ? '刷新中' : '立即刷新') }}
           </button>
         </div>
       </header>
 
-      <section class="rounded-xl border border-slate-200 bg-white p-4 md:p-5" aria-label="监控范围与状态">
+      <section class="rounded-xl border border-slate-200 bg-white p-4 md:p-5" :aria-label="t('监控范围与状态')">
         <div class="flex flex-wrap justify-between gap-3">
           <div class="flex items-start gap-3">
             <Server class="w-5 h-5 shrink-0 text-blue-600 mt-0.5" />
             <div>
-              <p class="text-sm font-semibold text-slate-800">监控范围：{{ metrics?.scope?.label || '等待获取运行环境' }}</p>
-              <p class="mt-1 text-sm leading-6 text-slate-500">{{ metrics?.scope?.description || '连接成功后显示 CPU 和内存指标对应的运行环境。' }}</p>
+              <p class="text-sm font-semibold text-slate-800">{{ t('监控范围：') }}{{ t(metrics?.scope?.label || '等待获取运行环境') }}</p>
+              <p class="mt-1 text-sm leading-6 text-slate-500">{{ t(metrics?.scope?.description || '连接成功后显示 CPU 和内存指标对应的运行环境。') }}</p>
             </div>
           </div>
           <div class="shrink-0 text-xs leading-6 text-slate-500">
@@ -34,22 +34,22 @@
               <span :class="['h-2 w-2 rounded-full', error || stale ? 'bg-amber-500' : metrics && autoRefresh ? 'bg-emerald-500' : 'bg-slate-400']" />
               {{ refreshStatus }}
             </p>
-            <p>采样时间：<time v-if="metrics?.sampled_at" :datetime="metrics.sampled_at">{{ formatDateTime(metrics.sampled_at) }}</time><span v-else>—</span></p>
+            <p>{{ t('采样时间：') }}<time v-if="metrics?.sampled_at" :datetime="metrics.sampled_at">{{ formatDateTime(metrics.sampled_at) }}</time><span v-else>—</span></p>
           </div>
         </div>
       </section>
 
       <div v-if="error" role="alert" class="flex gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
         <AlertTriangle class="w-5 h-5 shrink-0 mt-0.5" />
-        <p>{{ error }}{{ metrics ? ' 当前保留上次采样数据，请留意采样时间。' : '' }}</p>
+        <p>{{ errorText }} {{ retryHint }}{{ metrics ? t(' 当前保留上次采样数据，请留意采样时间。') : '' }}</p>
       </div>
-      <div v-else-if="stale" role="status" class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">{{ autoRefresh ? '采样数据已过期，正在等待服务器提供最新指标。' : '采样数据已过期；自动刷新已暂停，可点击立即刷新获取最新指标。' }}</div>
+      <div v-else-if="stale" role="status" class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">{{ t(autoRefresh ? '采样数据已过期，正在等待服务器提供最新指标。' : '采样数据已过期；自动刷新已暂停，可点击立即刷新获取最新指标。') }}</div>
       <div v-if="metrics?.errors?.length" role="status" class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
-        <p class="font-medium">部分指标暂不可用</p>
-        <ul class="list-disc pl-5"><li v-for="(message, index) in metrics.errors" :key="index">{{ message }}</li></ul>
+        <p class="font-medium">{{ t('部分指标暂不可用') }}</p>
+        <ul class="list-disc pl-5"><li v-for="(message, index) in metrics.errors" :key="index">{{ t(message) }}</li></ul>
       </div>
 
-      <section class="grid grid-cols-1 gap-4 lg:grid-cols-3" aria-label="当前资源使用情况">
+      <section class="grid grid-cols-1 gap-4 lg:grid-cols-3" :aria-label="t('当前资源使用情况')">
         <article v-for="card in cards" :key="card.key" class="rounded-xl border border-slate-200 bg-white p-5 md:p-6">
           <div class="flex items-center justify-between gap-3">
             <h2 class="text-sm font-semibold text-slate-700">{{ card.title }}</h2>
@@ -57,33 +57,33 @@
           </div>
           <p class="mt-4 text-3xl font-bold tabular-nums text-slate-800">{{ percentLabel(card.percent) }}<span v-if="isNumber(card.percent)" class="ml-1 text-lg font-medium text-slate-400">%</span></p>
           <p class="mt-1 min-h-5 text-xs text-slate-500">{{ card.caption }}</p>
-          <div class="mt-5 h-2 overflow-hidden rounded-full bg-slate-100" role="progressbar" :aria-label="card.title" :aria-valuenow="isNumber(card.percent) ? clampPercent(card.percent) : undefined" :aria-valuetext="isNumber(card.percent) ? `${percentLabel(card.percent)}%` : '暂无数据'" aria-valuemin="0" aria-valuemax="100">
+          <div class="mt-5 h-2 overflow-hidden rounded-full bg-slate-100" role="progressbar" :aria-label="card.title" :aria-valuenow="isNumber(card.percent) ? clampPercent(card.percent) : undefined" :aria-valuetext="isNumber(card.percent) ? `${percentLabel(card.percent)}%` : t('暂无数据')" aria-valuemin="0" aria-valuemax="100">
             <div :class="['h-full rounded-full transition-[width] duration-500', card.barClass]" :style="{ width: `${clampPercent(card.percent)}%` }" />
           </div>
           <dl class="mt-5 space-y-2 text-sm">
             <div v-for="row in card.rows" :key="row.label" class="flex justify-between gap-3">
-              <dt class="text-slate-500">{{ row.label }}</dt><dd class="font-medium tabular-nums text-slate-700 text-right">{{ row.value }}</dd>
+              <dt class="text-slate-500">{{ row.label }}</dt><dd class="font-medium tabular-nums text-slate-700 text-right shrink-0 whitespace-nowrap">{{ row.value }}</dd>
             </div>
           </dl>
         </article>
       </section>
 
-      <section class="rounded-xl border border-slate-200 bg-white p-5 md:p-6" aria-label="资源使用率历史趋势">
+      <section class="rounded-xl border border-slate-200 bg-white p-5 md:p-6" :aria-label="t('资源使用率历史趋势')">
         <div class="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h2 class="font-semibold text-slate-800">近 2 分钟使用率</h2>
-            <p class="mt-1 text-xs leading-5 text-slate-500">每 {{ intervalSeconds }} 秒采样；无数据的时段显示为空白。</p>
+            <h2 class="font-semibold text-slate-800">{{ t('近 2 分钟使用率') }}</h2>
+            <p class="mt-1 text-xs leading-5 text-slate-500">{{ t('每 {seconds} 秒采样；无数据的时段显示为空白。', { seconds: intervalSeconds.toLocaleString(intlLocale) }) }}</p>
           </div>
-          <span class="text-xs text-slate-400">{{ history.length }} 个采样点</span>
+          <span class="text-xs text-slate-400">{{ t('{count} 个采样点', { count: history.length.toLocaleString(intlLocale) }) }}</span>
         </div>
         <div v-if="history.length" class="mt-5 h-72 md:h-80" role="img" :aria-label="chartDescription">
           <v-chart class="h-full w-full" :option="chartOption" autoresize />
         </div>
         <div v-else class="flex h-72 flex-col items-center justify-center gap-3 text-slate-400">
           <Activity class="w-8 h-8" />
-          <p class="text-sm">{{ error ? '连接恢复后显示趋势' : '等待第一组采样数据' }}</p>
+          <p class="text-sm">{{ t(error ? '连接恢复后显示趋势' : '等待第一组采样数据') }}</p>
         </div>
-        <p class="mt-4 border-t border-slate-100 pt-4 text-xs leading-6 text-slate-500">磁盘指标表示资料目录所在文件系统的总容量与占用，包含同一文件系统中的其他数据。</p>
+        <p class="mt-4 border-t border-slate-100 pt-4 text-xs leading-6 text-slate-500">{{ t('磁盘指标表示资料目录所在文件系统的总容量与占用，包含同一文件系统中的其他数据。') }}</p>
       </section>
     </div>
   </div>
@@ -93,8 +93,10 @@
 import { computed, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref } from 'vue'
 import { Activity, AlertTriangle, Cpu, HardDrive, MemoryStick, Pause, Play, RefreshCw, Server } from 'lucide-vue-next'
 import { useAuth } from '../composables/useAuth'
+import { useI18n } from '../i18n'
 
 const { user } = useAuth()
+const { t, intlLocale } = useI18n()
 const metrics = ref(null)
 const loading = ref(false)
 const error = ref('')
@@ -107,7 +109,7 @@ let controller = null
 
 const isNumber = (value) => typeof value === 'number' && Number.isFinite(value)
 const clampPercent = (value) => isNumber(value) ? Math.min(100, Math.max(0, value)) : 0
-const percentLabel = (value) => isNumber(value) ? value.toFixed(1) : '—'
+const percentLabel = (value) => isNumber(value) ? value.toLocaleString(intlLocale.value, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : '—'
 const intervalSeconds = computed(() => isNumber(metrics.value?.interval_seconds) ? Math.min(30, Math.max(1, metrics.value.interval_seconds)) : 2)
 const stale = computed(() => {
   if (!metrics.value?.sampled_at) return false
@@ -115,58 +117,63 @@ const stale = computed(() => {
   return !Number.isFinite(sampled) || clockNow.value - sampled > Math.max(10_000, intervalSeconds.value * 3_000)
 })
 const refreshStatus = computed(() => {
-  if (!autoRefresh.value) return `自动刷新已暂停${error.value || stale.value ? (metrics.value ? ' · 数据已过期' : ' · 连接异常') : ''}`
-  if (error.value || stale.value) return metrics.value ? '数据已过期' : '连接异常'
-  if (!metrics.value) return '正在连接'
-  return `每 ${intervalSeconds.value} 秒自动刷新`
+  if (!autoRefresh.value) return `${t('自动刷新已暂停')}${error.value || stale.value ? ' · ' + t(metrics.value ? '数据已过期' : '连接异常') : ''}`
+  if (error.value || stale.value) return t(metrics.value ? '数据已过期' : '连接异常')
+  if (!metrics.value) return t('正在连接')
+  return t('每 {seconds} 秒自动刷新', { seconds: intervalSeconds.value.toLocaleString(intlLocale.value) })
 })
+const errorText = computed(() => {
+  const match = error.value.match(/^暂时无法获取资源指标（(\d+)），请稍后重试。$/)
+  return match ? t('暂时无法获取资源指标（{status}），请稍后重试。', { status: match[1] }) : t(error.value)
+})
+const retryHint = computed(() => ['获取资源指标超时。', '无法连接服务器。'].includes(error.value) ? t(autoRefresh.value ? '将自动重试。' : '请点击立即刷新重试。') : '')
 
 function formatBytes(value) {
   if (!isNumber(value) || value < 0) return '—'
   if (value === 0) return '0 B'
   const units = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB']
   const power = Math.min(units.length - 1, Math.floor(Math.log(value) / Math.log(1024)))
-  return `${(value / (1024 ** power)).toLocaleString('zh-CN', { maximumFractionDigits: power < 2 ? 0 : 2 })} ${units[power]}`
+  return `${(value / (1024 ** power)).toLocaleString(intlLocale.value, { maximumFractionDigits: power < 2 ? 0 : 2 })} ${units[power]}`
 }
 function formatDateTime(value) {
   const date = new Date(value)
-  return Number.isFinite(date.getTime()) ? date.toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) : '—'
+  return Number.isFinite(date.getTime()) ? date.toLocaleString(intlLocale.value, { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) : '—'
 }
 function formatClock(value) {
   const date = new Date(value)
-  return Number.isFinite(date.getTime()) ? date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) : '—'
+  return Number.isFinite(date.getTime()) ? date.toLocaleTimeString(intlLocale.value, { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) : '—'
 }
 
 const cpuCaption = computed(() => {
-  if (isNumber(metrics.value?.cpu?.percent)) return '所有逻辑核心的平均使用率'
-  if (metrics.value?.errors?.some((message) => /CPU/i.test(message)) || metrics.value?.scope?.kind === 'process') return 'CPU 指标暂不可用，请查看采样提示'
-  return metrics.value ? '首个 CPU 采样周期尚未完成' : '尚未取得 CPU 指标'
+  if (isNumber(metrics.value?.cpu?.percent)) return t('所有逻辑核心的平均使用率')
+  if (metrics.value?.errors?.some((message) => /CPU/i.test(message)) || metrics.value?.scope?.kind === 'process') return t('CPU 指标暂不可用，请查看采样提示')
+  return t(metrics.value ? '首个 CPU 采样周期尚未完成' : '尚未取得 CPU 指标')
 })
 
 const cards = computed(() => [
   {
-    key: 'cpu', title: 'CPU 使用率', icon: Cpu, iconClasses: 'bg-blue-50 text-blue-600', barClass: 'bg-blue-500', percent: metrics.value?.cpu?.percent,
+    key: 'cpu', title: t('CPU 使用率'), icon: Cpu, iconClasses: 'bg-blue-50 text-blue-600', barClass: 'bg-blue-500', percent: metrics.value?.cpu?.percent,
     caption: cpuCaption.value,
     rows: [
-      { label: '逻辑核心', value: isNumber(metrics.value?.cpu?.logical_cores) ? `${metrics.value.cpu.logical_cores} 个` : '—' },
-      { label: '统计范围', value: metrics.value?.scope?.label || '—' },
+      { label: t('逻辑核心'), value: isNumber(metrics.value?.cpu?.logical_cores) ? t('{count} 个', { count: metrics.value.cpu.logical_cores.toLocaleString(intlLocale.value) }) : '—' },
+      { label: t('统计范围'), value: t(metrics.value?.scope?.label || '—') },
     ],
   },
   {
-    key: 'memory', title: '内存使用率', icon: MemoryStick, iconClasses: 'bg-violet-50 text-violet-600', barClass: 'bg-violet-500', percent: metrics.value?.memory?.percent,
-    caption: '已用内存 = 总内存 − 可用内存',
+    key: 'memory', title: t('内存使用率'), icon: MemoryStick, iconClasses: 'bg-violet-50 text-violet-600', barClass: 'bg-violet-500', percent: metrics.value?.memory?.percent,
+    caption: t('已用内存 = 总内存 − 可用内存'),
     rows: [
-      { label: '已用 / 总量', value: `${formatBytes(metrics.value?.memory?.used_bytes)} / ${formatBytes(metrics.value?.memory?.total_bytes)}` },
-      { label: '可用内存', value: formatBytes(metrics.value?.memory?.available_bytes) },
-      { label: '后端容器（含缓存）', value: formatBytes(metrics.value?.backend?.memory_bytes) },
+      { label: t('已用 / 总量'), value: `${formatBytes(metrics.value?.memory?.used_bytes)} / ${formatBytes(metrics.value?.memory?.total_bytes)}` },
+      { label: t('可用内存'), value: formatBytes(metrics.value?.memory?.available_bytes) },
+      { label: t('后端容器（含缓存）'), value: formatBytes(metrics.value?.backend?.memory_bytes) },
     ],
   },
   {
-    key: 'disk', title: '磁盘使用率', icon: HardDrive, iconClasses: 'bg-amber-50 text-amber-600', barClass: 'bg-amber-500', percent: metrics.value?.disk?.percent,
-    caption: metrics.value?.disk?.label || '资料存储卷',
+    key: 'disk', title: t('磁盘使用率'), icon: HardDrive, iconClasses: 'bg-amber-50 text-amber-600', barClass: 'bg-amber-500', percent: metrics.value?.disk?.percent,
+    caption: t(metrics.value?.disk?.label || '资料存储卷'),
     rows: [
-      { label: '已用 / 总容量', value: `${formatBytes(metrics.value?.disk?.used_bytes)} / ${formatBytes(metrics.value?.disk?.total_bytes)}` },
-      { label: '可用空间', value: formatBytes(metrics.value?.disk?.free_bytes) },
+      { label: t('已用 / 总容量'), value: `${formatBytes(metrics.value?.disk?.used_bytes)} / ${formatBytes(metrics.value?.disk?.total_bytes)}` },
+      { label: t('可用空间'), value: formatBytes(metrics.value?.disk?.free_bytes) },
     ],
   },
 ])
@@ -175,12 +182,12 @@ const history = computed(() => {
   const samples = Array.isArray(metrics.value?.history) ? metrics.value.history : []
   return samples.filter((item) => item && Number.isFinite(Date.parse(item.timestamp))).slice(-60).sort((a, b) => Date.parse(a.timestamp) - Date.parse(b.timestamp))
 })
-const chartDescription = computed(() => `CPU、内存和磁盘近 2 分钟使用率趋势，纵轴 0% 至 100%。当前 CPU ${percentLabel(metrics.value?.cpu?.percent)}，内存 ${percentLabel(metrics.value?.memory?.percent)}，磁盘 ${percentLabel(metrics.value?.disk?.percent)}。`)
+const chartDescription = computed(() => t('CPU、内存和磁盘近 2 分钟使用率趋势，纵轴 0% 至 100%。当前 CPU {cpu}，内存 {memory}，磁盘 {disk}。', { cpu: percentLabel(metrics.value?.cpu?.percent), memory: percentLabel(metrics.value?.memory?.percent), disk: percentLabel(metrics.value?.disk?.percent) }))
 const chartOption = computed(() => {
   const seriesDefinition = [
     { key: 'cpu_percent', name: 'CPU', color: '#3b82f6' },
-    { key: 'memory_percent', name: '内存', color: '#8b5cf6' },
-    { key: 'disk_percent', name: '磁盘', color: '#f59e0b' },
+    { key: 'memory_percent', name: t('内存'), color: '#8b5cf6' },
+    { key: 'disk_percent', name: t('磁盘'), color: '#f59e0b' },
   ]
   const lastTime = history.value.length ? Date.parse(history.value[history.value.length - 1].timestamp) : Date.now()
   return {
@@ -189,11 +196,11 @@ const chartOption = computed(() => {
     grid: { top: 48, left: 8, right: 12, bottom: 8, containLabel: true },
     tooltip: {
       trigger: 'axis', renderMode: 'richText',
-      valueFormatter: (value) => isNumber(value) ? `${value.toFixed(1)}%` : '暂无数据',
-      axisPointer: { type: 'line' },
+      valueFormatter: (value) => isNumber(value) ? `${percentLabel(value)}%` : t('暂无数据'),
+      axisPointer: { type: 'line', label: { formatter: ({ value }) => formatDateTime(value) } },
     },
     xAxis: { type: 'time', min: lastTime - 120_000, max: lastTime, splitNumber: 4, axisLabel: { formatter: formatClock, color: '#94a3b8', hideOverlap: true }, axisLine: { lineStyle: { color: '#e2e8f0' } }, axisTick: { show: false }, splitLine: { show: false } },
-    yAxis: { type: 'value', min: 0, max: 100, interval: 25, axisLabel: { formatter: '{value}%', color: '#94a3b8' }, splitLine: { lineStyle: { color: '#f1f5f9' } } },
+    yAxis: { type: 'value', min: 0, max: 100, interval: 25, axisLabel: { formatter: (value) => `${value.toLocaleString(intlLocale.value)}%`, color: '#94a3b8' }, splitLine: { lineStyle: { color: '#f1f5f9' } } },
     series: seriesDefinition.map((definition) => {
       const points = []
       let previousTime = null
@@ -254,7 +261,7 @@ async function fetchMetrics() {
     error.value = ''
   } catch (reason) {
     if (controller !== requestController || !active) return
-    if (reason.name !== 'AbortError' || timedOut) error.value = timedOut ? `获取资源指标超时，${autoRefresh.value ? '将自动重试' : '请点击立即刷新重试'}。` : reason instanceof TypeError ? `无法连接服务器，${autoRefresh.value ? '将自动重试' : '请点击立即刷新重试'}。` : reason.message || '暂时无法获取资源指标。'
+    if (reason.name !== 'AbortError' || timedOut) error.value = timedOut ? '获取资源指标超时。' : reason instanceof TypeError ? '无法连接服务器。' : reason.message || '暂时无法获取资源指标。'
   } finally {
     clearTimeout(timeout)
     if (controller === requestController) {

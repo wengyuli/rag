@@ -12,15 +12,17 @@
 import { ref } from 'vue'
 import { useWorkspace } from './useWorkspace'
 import { useAuth } from './useAuth'
+import { t } from '../i18n'
 
 // 🔥 全局状态 (State) - 放在函数外部，保证多组件共享
-const messages = ref([
-  { 
-    role: 'assistant', 
-    content: '你好，我是企业数字资产库助手。可以帮你查找选题策划、封面规范、拍摄剪辑要点和发布流程，并定位资料来源。',
-    sources: [], thinking: false 
-  }
-])
+const createWelcomeMessage = () => ({
+  role: 'assistant',
+  content: '你好，我是企业数字资产库助手。可以帮你查找选题策划、封面规范、拍摄剪辑要点和发布流程，并定位资料来源。',
+  isLocalWelcome: true,
+  sources: [],
+  thinking: false
+})
+const messages = ref([createWelcomeMessage()])
 const currentSessionId = ref(null)
 const sessionList = ref([]) 
 const isLoading = ref(false)
@@ -92,12 +94,7 @@ export function useChat() {
     currentSessionId.value = null
     // 清除本地缓存，确保刷新后是新会话状态
     localStorage.removeItem('last_session_id')
-    messages.value = [{ 
-      role: 'assistant', 
-      content: '你好，我是企业数字资产库助手。可以帮你查找选题策划、封面规范、拍摄剪辑要点和发布流程，并定位资料来源。',
-      sources: [], 
-      thinking: false 
-    }]
+    messages.value = [createWelcomeMessage()]
   }
 
   // D. 发送消息
@@ -116,7 +113,7 @@ export function useChat() {
     }) - 1
   
     try {
-      if (!user.value.token) throw new Error("请先登录")
+      if (!user.value.token) throw new Error(t('请先登录'))
 
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -133,8 +130,8 @@ export function useChat() {
       })
   
       if (!response.ok) {
-        if (response.status === 401) throw new Error("登录已过期")
-        throw new Error(response.statusText)
+        if (response.status === 401) throw new Error(t('登录已过期'))
+        throw new Error(t('请求失败（HTTP {status}）', { status: response.status }))
       }
   
       const reader = response.body.getReader()
@@ -164,7 +161,7 @@ export function useChat() {
               // 注意：收到 sources 时不要关 thinking，让用户知道还在生成正文
             } 
             else if (msg.type === 'error') {
-              messages.value[aiMsgIndex].content += `\n[错误: ${msg.data || '回答生成失败，请重试'}]`
+              messages.value[aiMsgIndex].content += `\n[${t('错误：{message}', { message: msg.data || t('回答生成失败，请重试') })}]`
               messages.value[aiMsgIndex].thinking = false
             }
             else if (msg.type === 'content') {
@@ -192,7 +189,7 @@ export function useChat() {
     } catch (error) {
       console.error(error)
       messages.value[aiMsgIndex].thinking = false
-      messages.value[aiMsgIndex].content += `\n[错误: ${error.message}]`
+      messages.value[aiMsgIndex].content += `\n[${t('错误：{message}', { message: error.message || t('回答生成失败，请重试') })}]`
     } finally {
       isLoading.value = false
     }
@@ -207,7 +204,7 @@ export function useChat() {
         headers: { 'Authorization': `Bearer ${user.value.token}` }
       })
 
-      if (!res.ok) throw new Error('删除失败')
+      if (!res.ok) throw new Error(t('删除失败'))
 
       // 1. 从本地列表移除
       sessionList.value = sessionList.value.filter(s => s.id !== sessionId)
@@ -219,7 +216,7 @@ export function useChat() {
       
     } catch (e) {
       console.error(e)
-      alert("删除会话失败")
+      alert(t('删除会话失败'))
     }
   }
   

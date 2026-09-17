@@ -17,7 +17,8 @@ export function useDocuments() {
 
   const readError = async (response, fallback) => {
     const data = await response.json().catch(() => null)
-    return typeof data?.detail === 'string' ? data.detail : `${fallback}（${response.status}）`
+    const key = typeof data?.detail === 'string' ? data.detail : `${fallback}（HTTP {status}）`
+    return Object.assign(new Error(key), { translation: { key, values: { status: response.status } } })
   }
 
   const fetchDocuments = async ({ silent = false } = {}) => {
@@ -33,13 +34,13 @@ export function useDocuments() {
         headers: { Authorization: `Bearer ${user.value.token}` },
         signal: controller.signal,
       })
-      if (!response.ok) throw new Error(await readError(response, '获取资料列表失败'))
+      if (!response.ok) throw await readError(response, '获取资料列表失败')
       const data = await response.json()
       if (controller.signal.aborted || disposed) return
       docs.value = data
       listError.value = ''
     } catch (error) {
-      if (error.name !== 'AbortError' && !disposed) listError.value = error.message
+      if (error.name !== 'AbortError' && !disposed) listError.value = error.translation || error.message
     } finally {
       if (listController === controller && !disposed && active) {
         isLoading.value = false
@@ -59,7 +60,7 @@ export function useDocuments() {
       const response = await fetch('/api/documents/upload', {
         method: 'POST', headers: { Authorization: `Bearer ${user.value.token}` }, body: formData,
       })
-      if (!response.ok) throw new Error(await readError(response, '上传失败'))
+      if (!response.ok) throw await readError(response, '上传失败')
       const result = await response.json()
       await fetchDocuments({ silent: true })
       return result
@@ -73,7 +74,7 @@ export function useDocuments() {
       method: action === 'retry' ? 'POST' : 'DELETE',
       headers: { Authorization: `Bearer ${user.value.token}` },
     })
-    if (!response.ok) throw new Error(await readError(response, action === 'retry' ? '重试失败' : '删除失败'))
+    if (!response.ok) throw await readError(response, action === 'retry' ? '重试失败' : '删除失败')
     await fetchDocuments({ silent: true })
   }
 

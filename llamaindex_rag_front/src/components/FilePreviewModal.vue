@@ -5,19 +5,19 @@
       <header class="border-b px-4 md:px-6 py-3 bg-white shrink-0 flex flex-wrap items-center justify-between gap-3">
         <div class="min-w-0 flex-1">
           <h3 id="preview-title" class="font-semibold text-slate-800 truncate">{{ fileName }}</h3>
-          <p v-if="locationLabel" class="text-xs text-blue-600 mt-1">引用位置：{{ locationLabel }}<span v-if="fileType === 'video'"> · 已定位，可手动播放</span></p>
+          <p v-if="locationLabel" class="text-xs text-blue-600 mt-1">{{ t('引用位置：{location}', { location: locationLabel }) }}<span v-if="fileType === 'video'"> · {{ t('已定位，可手动播放') }}</span></p>
         </div>
-        <a v-if="fileUrl" :href="fileUrl" :download="fileName" class="text-sm text-blue-600 hover:underline">下载原文件</a>
-        <button @click="close" aria-label="关闭预览" class="p-2 text-slate-500 hover:bg-slate-100 rounded-lg"><X class="w-5 h-5" /></button>
+        <a v-if="fileUrl" :href="fileUrl" :download="fileName" class="text-sm text-blue-600 hover:underline">{{ t('下载原文件') }}</a>
+        <button @click="close" :aria-label="t('关闭预览')" class="p-2 text-slate-500 hover:bg-slate-100 rounded-lg"><X class="w-5 h-5" /></button>
       </header>
       <div v-if="fileType === 'pdf' && pageCount" class="flex items-center justify-center gap-4 px-4 py-2 border-b text-sm bg-slate-50">
-        <button @click="currentPage--" :disabled="currentPage <= 1" class="text-blue-600 disabled:text-slate-300">上一页</button>
-        <label>第 <input v-model.number="currentPage" type="number" :min="1" :max="pageCount" aria-label="PDF 页码" class="w-16 py-1 border rounded text-center" @change="clampPage" /> / {{ pageCount }} 页</label>
-        <button @click="currentPage++" :disabled="currentPage >= pageCount" class="text-blue-600 disabled:text-slate-300">下一页</button>
+        <button @click="currentPage--" :disabled="currentPage <= 1" class="text-blue-600 disabled:text-slate-300">{{ t('上一页') }}</button>
+        <label>{{ t('页码') }} <input v-model.number="currentPage" type="number" :min="1" :max="pageCount" :aria-label="t('PDF 页码')" class="w-16 py-1 border rounded text-center" @change="clampPage" /> {{ t('共 {count} 页', { count: pageCount }) }}</label>
+        <button @click="currentPage++" :disabled="currentPage >= pageCount" class="text-blue-600 disabled:text-slate-300">{{ t('下一页') }}</button>
       </div>
       <main ref="scrollContainer" class="flex-1 overflow-auto bg-slate-100 p-3 md:p-5 relative min-h-0">
-        <div v-if="loading" class="flex h-full flex-col items-center justify-center text-slate-500 gap-3"><Loader2 class="w-8 h-8 animate-spin" /><p class="text-sm">正在加载原文件…</p><p v-if="mediaType === 'video'" class="text-xs">较大的视频需要先加载，再播放和定位。</p></div>
-        <div v-else-if="loadError" role="alert" class="flex h-full flex-col items-center justify-center gap-3 text-center"><FileWarning class="w-10 h-10 text-amber-500" /><p class="text-sm text-slate-700">{{ loadError }}</p><button @click="loadFile" class="text-sm text-blue-600 underline">重新加载</button></div>
+        <div v-if="loading" class="flex h-full flex-col items-center justify-center text-slate-500 gap-3"><Loader2 class="w-8 h-8 animate-spin" /><p class="text-sm">{{ t('正在加载原文件…') }}</p><p v-if="mediaType === 'video'" class="text-xs">{{ t('较大的视频需要先加载，再播放和定位。') }}</p></div>
+        <div v-else-if="loadError" role="alert" class="flex h-full flex-col items-center justify-center gap-3 text-center"><FileWarning class="w-10 h-10 text-amber-500" /><p class="text-sm text-slate-700">{{ assetMessage(loadError) }}</p><button @click="loadFile" class="text-sm text-blue-600 underline">{{ t('重新加载') }}</button></div>
         <div v-else-if="fileType === 'pdf'" class="mx-auto max-w-4xl bg-white shadow-sm">
           <VuePdfEmbed :source="fileUrl" :page="currentPage" :text-layer="true" @loaded="onPdfLoaded" @rendered="onPdfRendered" @loading-failed="onPdfError" @rendering-failed="onPdfError" class="pdf-container" />
         </div>
@@ -25,13 +25,13 @@
         <div v-else-if="fileType === 'image'" class="flex items-center justify-center min-h-full"><img :src="fileUrl" :alt="fileName" class="max-w-full max-h-[70vh] object-contain rounded shadow-sm" @error="loadError = '图片无法显示，可下载原文件查看。'" /></div>
         <div v-else-if="fileType === 'video'" class="flex flex-col items-center justify-center min-h-full gap-3">
           <video ref="videoElement" :src="fileUrl" controls playsinline preload="metadata" class="max-w-full max-h-[62vh] w-full bg-black rounded-lg" @loadedmetadata="seekVideo" @error="videoError = true" />
-          <p v-if="videoError" class="text-sm text-amber-800">浏览器无法播放此视频编码，请下载原文件查看。</p>
-          <button v-if="startSeconds !== null && startSeconds !== undefined && !videoError" @click="seekVideo" class="text-sm text-blue-600 underline">回到引用时间 {{ formatTime(startSeconds) }}</button>
+          <p v-if="videoError" class="text-sm text-amber-800">{{ t('浏览器无法播放此视频编码，请下载原文件查看。') }}</p>
+          <button v-if="startSeconds !== null && startSeconds !== undefined && !videoError" @click="seekVideo" class="text-sm text-blue-600 underline">{{ t('回到引用时间 {time}', { time: formatTime(startSeconds) }) }}</button>
         </div>
-        <div v-else class="flex flex-col items-center justify-center h-full text-center gap-3 text-slate-500"><FileQuestion class="w-12 h-12 text-slate-400" /><p>此格式暂不支持直接预览，请下载原文件查看。</p></div>
+        <div v-else class="flex flex-col items-center justify-center h-full text-center gap-3 text-slate-500"><FileQuestion class="w-12 h-12 text-slate-400" /><p>{{ t('此格式暂不支持直接预览，请下载原文件查看。') }}</p></div>
       </main>
       <details v-if="highlightText" class="shrink-0 border-t bg-white px-5 py-3 max-h-36 overflow-auto text-sm text-slate-600">
-        <summary class="cursor-pointer font-medium text-slate-700">查看检索到的内容片段</summary>
+        <summary class="cursor-pointer font-medium text-slate-700">{{ t('查看检索到的内容片段') }}</summary>
         <p class="mt-2 leading-6 whitespace-pre-wrap break-words">{{ highlightText }}</p>
       </details>
     </section>
@@ -43,7 +43,10 @@ import { ref, computed, nextTick, watch, onBeforeUnmount } from 'vue'
 import { X, Loader2, FileQuestion, FileWarning } from 'lucide-vue-next'
 import VuePdfEmbed from 'vue-pdf-embed'
 import 'vue-pdf-embed/dist/styles/textLayer.css'
-import { formatTime, sourceLocation, highlightExcerpt } from '../utils/media'
+import { formatTime, sourceLocation, highlightExcerpt, assetMessage } from '../utils/media'
+import { useI18n } from '../i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   isOpen: Boolean,
@@ -118,7 +121,8 @@ const loadFile = async () => {
     })
     if (!response.ok) {
       const detail = await response.json().catch(() => null)
-      throw new Error(typeof detail?.detail === 'string' ? detail.detail : `无法加载文件（${response.status}）`)
+      const key = typeof detail?.detail === 'string' ? detail.detail : '无法加载文件（HTTP {status}）'
+      throw Object.assign(new Error(key), { translation: { key, values: { status: response.status } } })
     }
     const contentType = response.headers.get('content-type') || ''
     let blob
@@ -146,7 +150,7 @@ const loadFile = async () => {
     await nextTick()
     scrollContainer.value?.querySelector('#txt-mark')?.scrollIntoView({ block: 'center' })
   } catch (error) {
-    if (controller === activeController && error.name !== 'AbortError') loadError.value = error.message
+    if (controller === activeController && error.name !== 'AbortError') loadError.value = error.translation || error.message
   } finally {
     if (controller === activeController) loading.value = false
   }

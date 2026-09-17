@@ -1,40 +1,41 @@
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-center bg-slate-100">
+  <div class="min-h-screen flex flex-col items-center justify-center bg-slate-100 p-4">
     <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+      <div class="mb-6 flex justify-end"><LanguageSwitcher /></div>
       <div class="flex justify-center mb-6">
         <div class="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg transform rotate-3">
           <Bot class="w-10 h-10 text-white" />
         </div>
       </div>
       
-      <h1 class="text-2xl font-bold text-center text-slate-800 mb-2">企业数字资产库</h1>
-      <p class="text-center text-slate-500 mb-8">星河内容工作室</p>
+      <h1 class="text-2xl font-bold text-center text-slate-800 mb-2">{{ t('企业数字资产库') }}</h1>
+      <p class="text-center text-slate-500 mb-8">{{ t('星河内容工作室') }}</p>
       
       <form @submit.prevent="handleLogin" class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">账号</label>
+          <label class="block text-sm font-medium text-slate-700 mb-1">{{ t('账号') }}</label>
           <!-- 改为 text 类型，因为 LDAP 账号可能不是邮箱格式 -->
           <input 
             type="text" 
             v-model="username"
-            placeholder="请输入团队账号，例如：admin"
+            :placeholder="t('请输入团队账号，例如：admin')" :aria-label="t('账号')" autocomplete="username"
             class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
             required
           />
         </div>
         
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">密码</label>
+          <label class="block text-sm font-medium text-slate-700 mb-1">{{ t('密码') }}</label>
           <input 
             type="password" 
-            v-model="password"
+            v-model="password" :aria-label="t('密码')" autocomplete="current-password"
             class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
             required
           />
         </div>
 
         <div v-if="errorMsg" class="text-red-500 text-sm text-center bg-red-50 p-2 rounded">
-          {{ errorMsg }}
+          {{ t(errorMsg) }}
         </div>
         
         <button 
@@ -43,12 +44,12 @@
           class="w-full bg-slate-900 text-white p-3 rounded-lg font-semibold hover:bg-slate-800 transition flex items-center justify-center gap-2 disabled:opacity-50"
         >
           <Lock class="w-4 h-4" /> 
-          {{ isLoading ? '登录验证中...' : '安全登录' }}
+          {{ t(isLoading ? '登录验证中...' : '安全登录') }}
         </button>
       </form>
       
       <div class="mt-6 text-center text-xs text-slate-400">
-        团队内部资料与素材检索
+        {{ t('团队内部资料与素材检索') }}
       </div>
     </div>
   </div>
@@ -58,8 +59,11 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { Bot, Lock } from 'lucide-vue-next'
+import LanguageSwitcher from '../components/LanguageSwitcher.vue'
+import { useI18n } from '../i18n'
 import { useAuth } from '../composables/useAuth' // 引入鉴权逻辑
 
+const { t } = useI18n()
 const router = useRouter()
 const { login } = useAuth()
 
