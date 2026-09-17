@@ -46,7 +46,7 @@ def serialize_asset(doc, workspace_name=None):
         "isGlobal": doc.is_global, "uploader_id": doc.uploader_id,
         "uploader_name": doc.uploader.username if doc.uploader else "Unknown",
         "workspace_id": doc.workspace_id,
-        "workspace_name": workspace_name or ("公共资料库" if doc.is_global else doc.workspace_id),
+        "workspace_name": workspace_name or ("公共媒体库" if doc.is_global else doc.workspace_id),
     }
 
 
@@ -77,7 +77,7 @@ def upload_file(file: UploadFile = File(...), is_public: bool = Form(False),
         db.execute(text("SELECT pg_advisory_xact_lock(hashtextextended(:key, 0))"),
                    {"key": f"asset-upload:{workspace_id}:{file.filename}"})
         if db.query(DocumentRecord.id).filter_by(workspace_id=workspace_id, filename=file.filename).first():
-            raise HTTPException(409, "同一资料库已有同名文件，请重命名后上传，或先删除旧资料")
+            raise HTTPException(409, "同一媒体库已有同名文件，请重命名后上传，或先删除旧资料")
         storage = f"_assets/{uuid.uuid4().hex}/original{Path(file.filename).suffix.lower()}"
         target = contained_path(storage)
         target.parent.mkdir(parents=True, exist_ok=False)

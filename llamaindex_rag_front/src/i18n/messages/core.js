@@ -13,7 +13,7 @@ export default {
   "删除会话": "Delete chat",
   "系统概览": "Overview",
   "AI 查询": "AI Search",
-  "资料库": "Asset Library",
+  "媒体库": "Media Library",
   "资源监控": "Resource monitor",
   "部门管理": "Departments",
   "人员管理": "Users",

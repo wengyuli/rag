@@ -23,7 +23,7 @@
             <Layers3 class="h-4 w-4" aria-hidden="true" />{{ t('文档 · 图片 · 视频') }}
           </p>
           <h1 id="architecture-title" class="max-w-3xl text-3xl font-bold leading-tight tracking-tight text-slate-900 md:text-4xl md:leading-tight">{{ t('让企业资料，成为可查询的知识') }}</h1>
-          <p class="mt-4 max-w-3xl text-sm leading-7 text-slate-500 md:text-base">{{ t('让文档、图片和视频进入同一个资料库，通过 AI 查询找到线索，并回到原始内容核对。') }}</p>
+          <p class="mt-4 max-w-3xl text-sm leading-7 text-slate-500 md:text-base">{{ t('让文档、图片和视频进入同一个媒体库，通过 AI 查询找到线索，并回到原始内容核对。') }}</p>
           <div class="mt-6 flex flex-wrap gap-x-6 gap-y-3 text-xs font-medium text-slate-600 md:text-sm">
             <span class="inline-flex items-center gap-2"><FolderOpen class="h-4 w-4 text-blue-600" aria-hidden="true" />{{ t('统一内容管理') }}</span>
             <span class="inline-flex items-center gap-2"><Link2 class="h-4 w-4 text-blue-600" aria-hidden="true" />{{ t('可追溯的回答') }}</span>

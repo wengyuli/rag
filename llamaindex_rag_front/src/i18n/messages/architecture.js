@@ -2,7 +2,7 @@ export default {
   '返回系统': 'Back to the app',
   '文档 · 图片 · 视频': 'DOCUMENTS · IMAGES · VIDEO',
   '让企业资料，成为可查询的知识': 'Turn enterprise assets into searchable knowledge',
-  '让文档、图片和视频进入同一个资料库，通过 AI 查询找到线索，并回到原始内容核对。': 'Bring documents, images, and video into one library. Ask AI to find what matters, then check the original source.',
+  '让文档、图片和视频进入同一个媒体库，通过 AI 查询找到线索，并回到原始内容核对。': 'Bring documents, images, and video into one media library. Ask AI to find what matters, then check the original source.',
   '统一内容管理': 'One library for all media',
   '可追溯的回答': 'Answers linked to sources',
   '本地模型运行': 'Models running locally',

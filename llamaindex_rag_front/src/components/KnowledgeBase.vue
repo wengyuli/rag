@@ -5,7 +5,7 @@
       <header class="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p class="text-xs font-semibold tracking-widest text-blue-600 mb-2">{{ t('企业数字资产 AI 管理平台 · 本地资料检索') }}</p>
-          <h2 class="text-2xl font-bold text-slate-800">{{ t('资料库') }}</h2>
+          <h2 class="text-2xl font-bold text-slate-800">{{ t('媒体库') }}</h2>
           <p class="text-sm text-slate-500 mt-2">{{ t('统一管理选题策划文档、封面图片和拍摄与剪辑视频，处理完成后即可在 AI 查询中引用。') }}</p>
         </div>
         <button @click="fileInput?.click()" :disabled="isUploading || !canUpload"
@@ -65,7 +65,7 @@
       </div>
       <div v-else class="rounded-xl border border-slate-200 bg-white overflow-hidden">
         <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between text-xs text-slate-500">
-          <p>{{ t('共 {count} 份资料', { count: number(filteredDocs.length) }) }}<span v-if="filteredDocs.length !== docs.length">{{ t('，资料库总计 {count} 份', { count: number(docs.length) }) }}</span></p>
+          <p>{{ t('共 {count} 份资料', { count: number(filteredDocs.length) }) }}<span v-if="filteredDocs.length !== docs.length">{{ t('，媒体库总计 {count} 份', { count: number(docs.length) }) }}</span></p>
           <p class="2xl:hidden">{{ t('窄屏可横向滚动查看完整列表') }}</p>
         </div>
         <div class="overflow-x-auto focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500" role="region" :aria-label="t('资料列表，可横向滚动')" tabindex="0">
