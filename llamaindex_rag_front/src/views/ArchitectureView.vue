@@ -4,7 +4,7 @@
       <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-4 md:px-8">
         <router-link to="/" class="flex min-w-0 items-center gap-3 text-sm font-semibold text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
           <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white"><LibraryBig class="h-5 w-5" aria-hidden="true" /></span>
-          <span class="max-w-64 leading-snug">{{ t('企业数字资产库') }}</span>
+          <span class="max-w-64 leading-snug">{{ t('企业数字资产 AI 管理平台') }}</span>
         </router-link>
         <div class="flex flex-wrap items-center gap-4">
           <LanguageSwitcher />

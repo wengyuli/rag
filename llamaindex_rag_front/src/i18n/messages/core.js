@@ -1,5 +1,5 @@
 export default {
-  "企业数字资产库": "Enterprise Digital Asset Library",
+  "企业数字资产 AI 管理平台": "Enterprise Digital Asset AI Management Platform",
   "公共知识库": "Shared library",
   "未分配部门": "Unassigned",
   "所属部门 (Workspace)": "Workspace",

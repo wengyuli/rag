@@ -1,4 +1,4 @@
-# 企业数字资产库 · 本地 Docker 部署
+# 企业数字资产 AI 管理平台 · 本地 Docker 部署
 
 基于 rogers0602 的 [llamaindex_rag 后端](https://github.com/rogers0602/llamaindex_rag)和 [llamaindex_rag_front 前端](https://github.com/rogers0602/llamaindex_rag_front)，整理为同一个仓库，提供已在 Apple Silicon Mac 上验证的 Docker 部署配置。
 

@@ -30,6 +30,6 @@ export function displayWorkspace(name, id) {
 watch(locale, (value) => {
   if (typeof document === 'undefined') return
   document.documentElement.lang = value === 'en' ? 'en' : 'zh-CN'
-  document.title = t('企业数字资产库')
+  document.title = t('企业数字资产 AI 管理平台')
 }, { immediate: true })
 export function useI18n() { return { t, locale, intlLocale, setLocale, displayWorkspace } }

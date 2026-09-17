@@ -3,7 +3,7 @@
     <!-- Logo -->
     <div class="p-4 border-b border-slate-800 flex items-center gap-2 font-bold text-white text-lg">
       <Bot class="w-6 h-6 shrink-0 text-blue-500" />
-      <span class="text-base leading-snug">{{ t('企业数字资产库') }}</span>
+      <span class="text-base leading-snug">{{ t('企业数字资产 AI 管理平台') }}</span>
     </div>
 
     <!-- 部门信息 -->

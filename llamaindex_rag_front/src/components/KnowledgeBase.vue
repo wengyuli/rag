@@ -4,7 +4,7 @@
     <div class="max-w-6xl mx-auto space-y-6">
       <header class="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p class="text-xs font-semibold tracking-widest text-blue-600 mb-2">{{ t('企业数字资产库 · 本地资料检索') }}</p>
+          <p class="text-xs font-semibold tracking-widest text-blue-600 mb-2">{{ t('企业数字资产 AI 管理平台 · 本地资料检索') }}</p>
           <h2 class="text-2xl font-bold text-slate-800">{{ t('资料库') }}</h2>
           <p class="text-sm text-slate-500 mt-2">{{ t('统一管理选题策划文档、封面图片和拍摄与剪辑视频，处理完成后即可在 AI 查询中引用。') }}</p>
         </div>

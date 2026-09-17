@@ -8,7 +8,7 @@
         </div>
       </div>
       
-      <h1 class="text-2xl font-bold text-center text-slate-800 mb-2">{{ t('企业数字资产库') }}</h1>
+      <h1 class="text-2xl font-bold text-center text-slate-800 mb-2">{{ t('企业数字资产 AI 管理平台') }}</h1>
       <p class="text-center text-slate-500 mb-8">{{ t('星河内容工作室') }}</p>
       
       <form @submit.prevent="handleLogin" class="space-y-4">

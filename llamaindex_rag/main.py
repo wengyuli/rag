@@ -43,7 +43,7 @@ async def lifespan(app: FastAPI):
         stop_worker()
 
 
-app = FastAPI(title="企业数字资产库", lifespan=lifespan)
+app = FastAPI(title="企业数字资产 AI 管理平台", lifespan=lifespan)
 
 # CORS 配置
 app.add_middleware(

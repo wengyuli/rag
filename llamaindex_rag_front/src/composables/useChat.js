@@ -17,7 +17,7 @@ import { t } from '../i18n'
 // 🔥 全局状态 (State) - 放在函数外部，保证多组件共享
 const createWelcomeMessage = () => ({
   role: 'assistant',
-  content: '你好，我是企业数字资产库助手。可以帮你查找选题策划、封面规范、拍摄剪辑要点和发布流程，并定位资料来源。',
+  content: '你好，我是企业数字资产 AI 管理平台助手。可以帮你查找选题策划、封面规范、拍摄剪辑要点和发布流程，并定位资料来源。',
   isLocalWelcome: true,
   sources: [],
   thinking: false

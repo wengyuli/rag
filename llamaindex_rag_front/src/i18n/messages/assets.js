@@ -1,5 +1,5 @@
 export default {
-  "企业数字资产库 · 本地资料检索": "Enterprise Digital Asset Library · Local Search",
+  "企业数字资产 AI 管理平台 · 本地资料检索": "Enterprise Digital Asset AI Management Platform · Local Search",
   "资料库": "Asset Library",
   "统一管理选题策划文档、封面图片和拍摄与剪辑视频，处理完成后即可在 AI 查询中引用。": "Manage planning documents, cover images, and production videos together. Once processed, they can be used as sources in AI Search.",
   "正在上传…": "Uploading…",
