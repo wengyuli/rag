@@ -6,7 +6,7 @@
         <div>
           <p class="text-xs font-semibold tracking-widest text-blue-600 mb-2">{{ t('企业数字资产库 · 本地资料检索') }}</p>
           <h2 class="text-2xl font-bold text-slate-800">{{ t('资料库') }}</h2>
-          <p class="text-sm text-slate-500 mt-2">{{ t('统一管理选题策划文档、封面图片和拍摄与剪辑视频，处理完成后即可在 AI 问答中引用。') }}</p>
+          <p class="text-sm text-slate-500 mt-2">{{ t('统一管理选题策划文档、封面图片和拍摄与剪辑视频，处理完成后即可在 AI 查询中引用。') }}</p>
         </div>
         <button @click="fileInput?.click()" :disabled="isUploading || !canUpload"
           class="inline-flex items-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50">

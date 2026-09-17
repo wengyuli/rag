@@ -74,7 +74,7 @@ export default {
   "自媒体团队内部资料与素材概览。": "An overview of internal documents and media for your content team.",
   "总资料数": "Total assets",
   "份": "assets",
-  "累计AI问答": "AI conversations",
+  "累计 AI 查询": "AI search sessions",
   "次": "sessions",
   "当前部门空间": "Department workspace",
   "公共区": "Public workspace",

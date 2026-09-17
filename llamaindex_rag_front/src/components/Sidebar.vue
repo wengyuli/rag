@@ -158,7 +158,7 @@ const { sessionList, fetchSessions, loadSession, createNewSession, deleteSession
 
 const allTabs = [
   { id: 'home', label: '系统概览', icon: LayoutDashboard, roles: ['admin', 'member'] },
-  { id: 'chat', label: 'AI问答', icon: MessageSquare, roles: ['admin', 'member'] },
+  { id: 'chat', label: 'AI 查询', icon: MessageSquare, roles: ['admin', 'member'] },
   { id: 'knowledge', label: '资料库', icon: Database, roles: ['admin', 'member'] },
   { id: 'resources', label: '资源监控', icon: Activity, roles: ['admin'] },
   { id: 'departments', label: '部门管理', icon: Building2, roles: ['admin'] },
